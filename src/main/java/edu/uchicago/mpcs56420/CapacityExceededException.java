@@ -5,13 +5,13 @@ package edu.uchicago.mpcs56420;
  */
 public class CapacityExceededException extends Exception {
 
-    private Tuple mLastTuple;
+	private Tuple mLastTuple;
 
-    public CapacityExceededException(Tuple lastTuple) {
-        mLastTuple = lastTuple;
-    }
+	public CapacityExceededException(Tuple lastTuple) {
+		mLastTuple = lastTuple;
+	}
 
-    public Tuple getLastTuple() {
-        return mLastTuple;
-    }
+	public Tuple getLastTuple() {
+		return mLastTuple;
+	}
 }

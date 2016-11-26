@@ -108,4 +108,13 @@ public class TupleTest {
         assert (arrayList.size() == 2);
     }
 
+    @Test
+    public void testEmitPrefix() {
+        Tuple tuple = new Tuple("aggctatgctca", "red", "blue");
+        assert tuple.emitPrefix(4).equals("aggc");
+        assert tuple.getSuffix().equals("tatgctca");
+        assert tuple.emitPrefix(4).equals("tatg");
+        assert tuple.getSuffix().equals("ctca");
+    }
+
 }
