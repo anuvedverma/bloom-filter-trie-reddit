@@ -3,9 +3,6 @@ package edu.uchicago.mpcs56420;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -16,58 +13,52 @@ import java.util.BitSet;
 public class CompressedContainer extends Container {
 
 	// pref bit-array size is 2 ^ (number of bits needed to represent suffix-prefix prefix)
-	private static final int PREF_SIZE = (int) Math.pow(2, (double) Container.numBitsNeededForAlphabet() * Container.getSfpxPrefixSize());
+	private static final int PREF_SIZE = (int) Math.pow(2, (double) Container.numBitsNeededForAlphabet() * Container.getSfpxPrefixLength());
 
+    // data stored in compressed container
 	private BloomFilter<String> mQuer;
 	private BitSet mPref;
-	private ArrayList<String> mSuf;
-	private ArrayList<Boolean> mClust;
+    private ArrayList<SufClustData> mSufClustData; // a SufClustData object stores a single suf, clust, and childVertex element
 
 	public CompressedContainer() {
 		mQuer = BloomFilter.create(Funnels.stringFunnel(StandardCharsets.UTF_8), getCapacity());
 		mPref = new BitSet(PREF_SIZE);
-		mSuf = new ArrayList<>(getCapacity());
-		mClust = new ArrayList<>(getCapacity());
+        mSufClustData = new ArrayList<>(getCapacity());
 	}
 
-    /* Getters */
-    public BloomFilter<String> getQuer() { return mQuer.copy(); }
+    /* Uses bloom filter to efficiently test whether or not suffix-prefix is contained */
+    public boolean mayContain(String sfpx) {
+        return mQuer.mightContain(sfpx);
+    }
 
-    public BitSet getPref() { return (BitSet) mPref.clone(); }
+    /* Returns the child vertex associated with a given suffix-prefix (sfpx) */
+    public BFTVertex getChildOf(String sfpx) {
+        int indexOfChild = indexOf(sfpx);
 
-    public ArrayList<String> getSuf() { return new ArrayList<>(mSuf); }
+        if(indexOfChild > -1)
+            return mSufClustData.get(indexOfChild).getChildVertex();
 
-    public ArrayList<Boolean> getClust() { return new ArrayList<>(mClust); }
+        return null;
+    }
 
-    public static int getPrefSize() { return PREF_SIZE; }
+    /* Tests whether a prefix of input tuple exists in CompressedContainer */
+    public boolean containsPrefix(Tuple tuple) {
+        String sfpx = tuple.getSfxPrefix(getSfpxLength());
+        return containsPrefix(sfpx);
+    }
 
-    @Override
-	public boolean contains(Tuple tuple) {
-		return false;
-	}
-
-	@Override
-	public boolean containsSuffix(Tuple tuple) {
-		return false;
-	}
-
-	@Override
-	public void insert(Tuple newTuple) throws CapacityExceededException {
-
-	}
-
-	/* Algorithm to efficiently check if CompressedContainer stores a given suffix's prefix */
-	private boolean contains(String sfpx) {
-		String sfpxPrefix = sfpx.substring(0, getSfpxPrefixSize());
-		String sfpxSuffix = sfpx.substring(getSfpxPrefixSize());
-		int prefIndex = getIndexOnPref(sfpxPrefix);
+	/* Algorithm to efficiently check if CompressedContainer stores a given suffix-prefix (sfpx) */
+	public boolean containsPrefix(String sfpx) {
+		String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
+		String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+		int prefIndex = getIndexInPref(sfpxPrefix);
 
 		if(mPref.get(prefIndex) == true) {
 			int clusterNum = hammingWeight(prefIndex);
 			int start = rank(clusterNum);
 			int pos = start;
-			while(pos <= mSuf.size() && (pos == start || mClust.get(pos) == false)) {
-				if(mSuf.get(pos).equals(sfpxSuffix)) return true;
+			while(pos < mSufClustData.size() && (pos == start || mSufClustData.get(pos).isClusterStart() == false)) {
+                if(mSufClustData.get(pos).getSfpxSuffix().equals(sfpxSuffix)) return true;
 				pos++;
 			}
 		}
@@ -75,21 +66,37 @@ public class CompressedContainer extends Container {
 		return false;
 	}
 
-	private void insert(String sfpx) {
-		String sfpxPrefix = sfpx.substring(0, getSfpxPrefixSize());
-		String sfpxSuffix = sfpx.substring(getSfpxPrefixSize());
-		int prefIndex = getIndexOnPref(sfpxPrefix);
+    /* Inserts the suffix-prefix of an input tuple into the CompressedContainer */
+    @Override
+    public void insert(Tuple newTuple) throws CapacityExceededException {
+        String sfpx = newTuple.getSfxPrefix(getSfpxLength());
+        insert(sfpx);
+    }
 
-		boolean wasPrefIndexSet = mPref.get(prefIndex);
-		mPref.set(prefIndex);
+    /* Algorithm for inserting a suffix-prefix (sfpx) into the CompressedContainer */
+    @Override
+    public void insert(String sfpx) throws CapacityExceededException {
 
-		int clusterNum = hammingWeight(prefIndex);
-		int clusterPos = rank(clusterNum);
+        if(containsPrefix(sfpx))
+            return;
+
+        if((mSufClustData.size() == getCapacity()))
+            throw new CapacityExceededException();
+
+        String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
+        String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+        int prefIndex = getIndexInPref(sfpxPrefix);
+
+        boolean wasPrefIndexSet = mPref.get(prefIndex);
+        mPref.set(prefIndex);
+
+        int clusterNum = hammingWeight(prefIndex);
+        int clusterPos = rank(clusterNum);
 
         // sfpxPrefix was not present
         if(!wasPrefIndexSet) {
-            mSuf.add(clusterPos, sfpxSuffix);
-            mClust.add(clusterPos, true);
+            SufClustData sufClustData = new SufClustData(sfpxSuffix, true);
+            mSufClustData.add(clusterPos, sufClustData);
             return;
         }
 
@@ -97,10 +104,11 @@ public class CompressedContainer extends Container {
         if(wasPrefIndexSet) {
 
             // if sfpxSuffix starts its cluster...
-            boolean isNewSfxLessThanPos = sfpxSuffix.compareTo(mSuf.get(clusterPos)) < 0;
+            boolean isNewSfxLessThanPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos).getSfpxSuffix()) < 0;
             if(isNewSfxLessThanPos) {
-                mSuf.add(clusterPos, sfpxSuffix);
-                mClust.add(clusterPos+1, false);
+                SufClustData sufClustData = new SufClustData(sfpxSuffix, true);
+                mSufClustData.add(clusterPos, sufClustData);
+                mSufClustData.get(clusterPos+1).setClusterStart(false);
                 return;
             }
 
@@ -108,33 +116,33 @@ public class CompressedContainer extends Container {
             clusterPos++;
 
             // if clusterPos is at end of bit-array
-            if(clusterPos >= mClust.size()) {
-                mSuf.add(clusterPos, sfpxSuffix);
-                mClust.add(clusterPos, false);
+            if(clusterPos >= mSufClustData.size()) {
+                SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
+                mSufClustData.add(clusterPos, sufClustData);
                 return;
             }
 
             // while sfpxSuffix is greater than previous suffix...
-            boolean isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSuf.get(clusterPos-1)) > 0;
+            boolean isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos-1).getSfpxSuffix()) > 0;
             while (isNewSfxGreaterThanPrevPos) {
                 // if next cluster is reached (ie. if sfpxSuffix is greatest in its cluster)...
-                if(mClust.get(clusterPos)) {
-                    mSuf.add(clusterPos, sfpxSuffix);
-                    mClust.add(clusterPos, false);
+                if(mSufClustData.get(clusterPos).isClusterStart()) {
+                    SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
+                    mSufClustData.add(clusterPos, sufClustData);
                     return;
                 }
                 clusterPos++;
-                isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSuf.get(clusterPos-1)) > 0;
+                isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos-1).getSfpxSuffix()) > 0;
             }
 
             // if sfpxSuffix is less than previous suffix...
-            mSuf.add(clusterPos-1, sfpxSuffix);
-            mClust.add(clusterPos-1, false);
+            SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
+            mSufClustData.add(clusterPos-1, sufClustData);
             return;
         }
-	}
+    }
 
-	/**** Auxiliary functions ****/
+    /************* Auxiliary functions *********************/
 
 	private int hammingWeight(int index) {
 		int hammingWeight = 0;
@@ -144,24 +152,81 @@ public class CompressedContainer extends Container {
 	}
 
 	private int rank(int clusterNum) {
-        for (int clusterPos = 0; clusterPos < mClust.size(); clusterPos++) {
-            if(mClust.get(clusterPos) == true)
+        int clustSize = mSufClustData.size();
+        for (int clusterPos = 0; clusterPos < clustSize; clusterPos++) {
+            if(mSufClustData.get(clusterPos).isClusterStart())
                 clusterNum--;
             if(clusterNum == 0)
                 return clusterPos;
         }
 
-        return mClust.size();
+        return mSufClustData.size();
     }
 
 	/* Converts prefix string to its location on mPref bit-array */
-	private int getIndexOnPref(String sfpxPrefix) {
+	private int getIndexInPref(String sfpxPrefix) {
 		int prefIndex = 0;
 		for (int i = 0; i < sfpxPrefix.length(); i++) // binary index = sum((|A|^i) * c)
-			prefIndex += Math.pow(getAlphabetSize(), getSfpxPrefixSize() - (i + 1)) * getAlphabet().indexOf(sfpxPrefix.charAt(i));
+			prefIndex += Math.pow(getAlphabetSize(), getSfpxPrefixLength() - (i + 1)) * getAlphabet().indexOf(sfpxPrefix.charAt(i));
 
 		return prefIndex;
 	}
+
+    /* Algorithm to return index of the child vertex that holds a given suffix's prefix */
+    private int indexOf(String sfpx) {
+        String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
+        String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+        int prefIndex = getIndexInPref(sfpxPrefix);
+
+        if(mPref.get(prefIndex) == true) {
+            int clusterNum = hammingWeight(prefIndex);
+            int start = rank(clusterNum);
+            int pos = start;
+            while(pos < mSufClustData.size() && (pos == start || !mSufClustData.get(pos).isClusterStart())) {
+                if(mSufClustData.get(pos).getSfpxSuffix().equals(sfpxSuffix)) return pos;
+                pos++;
+            }
+        }
+
+        return -1;
+    }
+
+
+    /* Getters */
+    public int size() { return mSufClustData.size(); }
+
+    public BloomFilter<String> getQuer() { return mQuer.copy(); }
+
+    public BitSet getPref() { return (BitSet) mPref.clone(); }
+
+    public ArrayList<SufClustData> getSufClustData() { return new ArrayList<>(mSufClustData); }
+
+    public ArrayList<String> getSuf() {
+        ArrayList<String> suf = new ArrayList<>(getCapacity());
+        for (int i = 0; i < mSufClustData.size(); i++)
+            suf.add(mSufClustData.get(i).getSfpxSuffix());
+
+        return suf;
+    }
+
+    public ArrayList<Boolean> getClust() {
+        ArrayList<Boolean> clust = new ArrayList<>(getCapacity());
+        for (int i = 0; i < mSufClustData.size(); i++)
+            clust.add(mSufClustData.get(i).isClusterStart());
+
+        return clust;
+    }
+
+    public ArrayList<BFTVertex> getChildVertices() {
+        ArrayList<BFTVertex> childVertices = new ArrayList<>(getCapacity());
+        for (int i = 0; i < mSufClustData.size(); i++)
+            childVertices.add(mSufClustData.get(i).getChildVertex());
+
+        return childVertices;
+    }
+
+    public static int getPrefSize() { return PREF_SIZE; }
+
 
     @Override
     public String toString() {
@@ -174,16 +239,22 @@ public class CompressedContainer extends Container {
         output.append("pref: " + mPref + "\n");
 
         // print suf
-        output.append("suf: ");
-        for (int i = 0; i < mSuf.size(); i++)
-            output.append(mSuf.get(i) + " ");
-        output.append("\n");
+        output.append("suf: [");
+        for (int i = 0; i < mSufClustData.size(); i++)
+            output.append(mSufClustData.get(i).getSfpxSuffix() + " ");
+        output.append("]\n");
 
         // print clust
-        output.append("clust: ");
-        for (int i = 0; i < mClust.size(); i++)
-            output.append(mClust.get(i) + " ");
-        output.append("\n");
+        output.append("clust: [");
+        for (int i = 0; i < mSufClustData.size(); i++)
+            output.append(mSufClustData.get(i).isClusterStart() + " ");
+        output.append("]\n");
+
+        // print child vertices
+//        output.append("child vertices:\n");
+//        for (int i = 0; i < mSufClustData.size(); i++)
+//            output.append(mSufClustData.get(i).getChildVertex() + " ");
+//        output.append("\n");
 
         return output.toString();
     }

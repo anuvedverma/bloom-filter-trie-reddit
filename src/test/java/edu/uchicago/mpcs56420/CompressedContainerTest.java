@@ -16,23 +16,28 @@ public class CompressedContainerTest {
     private CompressedContainer mCompressedContainer;
 
     @Before
-    public void initCompressedContainer() {
+    public void initCompressedContainer() throws CapacityExceededException {
         mCompressedContainer = new CompressedContainer();
-
+        mCompressedContainer.insert("aggc");
+        mCompressedContainer.insert(new Tuple("ctca"));
+        mCompressedContainer.insert("ctca");
+        mCompressedContainer.insert(new Tuple("gccc", "red"));
+        mCompressedContainer.insert("gccc");
+        mCompressedContainer.insert("gcgc");
+        mCompressedContainer.insert("gtat");
     }
 
     @Test
-    public void testInsertAndContains() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        // use reflection to test private insert method
-        Method insert = CompressedContainer.class.getDeclaredMethod("insert", String.class);
-        insert.setAccessible(true);
+    public void testInsert() {
 
-        // test method
-        insert.invoke(mCompressedContainer, "aggc");
-        insert.invoke(mCompressedContainer, "ctca");
-        insert.invoke(mCompressedContainer, "gccc");
-        insert.invoke(mCompressedContainer, "gcgc");
-        insert.invoke(mCompressedContainer, "gtat");
+        ArrayList<String> suf = mCompressedContainer.getSuf();
+        for (int i = 0; i < suf.size(); i++) {
+            System.out.println(suf.get(i));
+        }
+
+        // test mSufClustData values
+        int sufClustSize = mCompressedContainer.size();
+        assert sufClustSize == 5;
 
         // test mPref values
         BitSet correctPref = new BitSet(CompressedContainer.getPrefSize());
@@ -42,66 +47,44 @@ public class CompressedContainerTest {
         correctPref.set(11);
         assert correctPref.equals(mCompressedContainer.getPref());
 
-        // test mSuf values
+
+        // test suf values
         ArrayList<String> correctSuf = new ArrayList<>(Container.getCapacity());
         correctSuf.add("gc");
         correctSuf.add("ca");
         correctSuf.add("cc");
         correctSuf.add("gc");
         correctSuf.add("at");
-        for (int i = 0; i < mCompressedContainer.getSuf().size(); i++)
+        for (int i = 0; i < sufClustSize; i++)
             assert correctSuf.get(i).equals(mCompressedContainer.getSuf().get(i));
 
-        // test mClust values
+        // test clust values
         ArrayList<Boolean> correctClust = new ArrayList<>(Container.getCapacity());
         correctClust.add(true);
         correctClust.add(true);
         correctClust.add(true);
         correctClust.add(false);
         correctClust.add(true);
-        for (int i = 0; i < mCompressedContainer.getClust().size(); i++)
+        for (int i = 0; i < sufClustSize; i++)
             assert correctClust.get(i).equals(mCompressedContainer.getClust().get(i));
-
-
-        // use reflection to test private contains method
-        Method contains = CompressedContainer.class.getDeclaredMethod("contains", String.class);
-        contains.setAccessible(true);
-
-        Object output;
-        output = contains.invoke(mCompressedContainer, "aggc");
-        assert ((Boolean) output == true);
-        output = contains.invoke(mCompressedContainer, "ctca");
-        assert ((Boolean) output == true);
-        output = contains.invoke(mCompressedContainer, "gccc");
-        assert ((Boolean) output == true);
-        output = contains.invoke(mCompressedContainer, "gcgc");
-        assert ((Boolean) output == true);
-        output = contains.invoke(mCompressedContainer, "gtat");
-        assert ((Boolean) output == true);
-        output = contains.invoke(mCompressedContainer, "aatt");
-        assert ((Boolean) output == false);
-        output = contains.invoke(mCompressedContainer, "tatt");
-        assert ((Boolean) output == false);
-        output = contains.invoke(mCompressedContainer, "catt");
-        assert ((Boolean) output == false);
-
 
         System.out.println(mCompressedContainer);
     }
 
-
     @Test
-    public void testHammingWeight() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        // use reflection to test private methods
-//        Method method = CompressedContainer.class.getDeclaredMethod("hammingWeight", int.class);
-//        method.setAccessible(true);
+    public void testContainsPrefix() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        // test method
-//        Object output;
-//        output = method.invoke(mCompressedContainer, 1);
-//        assert ((Boolean) output == true);
-//        output = method.invoke(mCompressedContainer, 2);
-//        assert ((Boolean) output == true);
+        assert mCompressedContainer.containsPrefix("aggc");
+        assert mCompressedContainer.containsPrefix("ctca");
+        assert mCompressedContainer.containsPrefix("gccc");
+        assert mCompressedContainer.containsPrefix("gcgc");
+        assert mCompressedContainer.containsPrefix("gtat");
+        assert mCompressedContainer.containsPrefix(new Tuple("gtat", "red"));
+        assert mCompressedContainer.containsPrefix("aatt") == false;
+        assert mCompressedContainer.containsPrefix("tatt") == false;
+        assert mCompressedContainer.containsPrefix("catt") == false;
+        assert mCompressedContainer.containsPrefix(new Tuple("catt", "blue")) == false;
+
     }
 
 }

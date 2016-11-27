@@ -66,9 +66,13 @@ public class UncompressedContainerTest {
         }
 
         assert uc.size() == capacity;
-        System.out.println(uc);
 
-        Tuple newTuple = new Tuple("cagt");
+        Tuple newTuple = new Tuple("acgt0", "red");
+        uc.insert(newTuple);
+        System.out.println(uc);
+        assert uc.contains(new Tuple("acgt0", "red"));
+
+        newTuple = new Tuple("cagt");
         uc.insert(newTuple);
     }
 

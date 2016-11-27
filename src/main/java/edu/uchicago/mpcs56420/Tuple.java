@@ -39,9 +39,7 @@ public class Tuple implements Comparable<Tuple> {
 		mSuffix = suffix;
 	}
 
-	public BitSet getColors() {
-		return mColors;
-	}
+	public BitSet getColors() { return (BitSet) mColors.clone(); }
 
 	public void setColors(BitSet colors) {
 		mColors = colors;
@@ -57,6 +55,9 @@ public class Tuple implements Comparable<Tuple> {
 		mColors.or(colors);
 	}
 
+	/* Returns the number of unique colors */
+	public int numColors() { return mColors.cardinality(); }
+
 	/* Checks if all color-bits from input BitSet are already present */
 	public boolean hasColors(BitSet colors) {
 		boolean hasColors = true;
@@ -68,19 +69,26 @@ public class Tuple implements Comparable<Tuple> {
 		return hasColors;
 	}
 
+
 	/* Gets prefix of suffix string for compression and indexing algorithm */
-	public String getPrefix(int sfpxLength) {
+	public String getSfxPrefix(int sfpxLength) {
 		String sfpx = mSuffix.substring(0, sfpxLength);
 		return sfpx;
 	}
 
 
 	/* Truncates suffix string for compression and indexing algorithm */
-	public String emitPrefix(int sfpxLength) {
+	public String emitSfxPrefix(int sfpxLength) {
 		String sfpx = mSuffix.substring(0, sfpxLength);
 		mSuffix = mSuffix.substring(sfpxLength);
 		return sfpx;
 	}
+
+    /* Gets suffix of suffix string for compression and indexing algorithm */
+    public String getSfxSuffix(int sfpxLength) {
+        String sfsf = mSuffix.substring(sfpxLength);
+        return sfsf;
+    }
 
 
 	/*

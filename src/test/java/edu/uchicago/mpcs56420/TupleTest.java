@@ -43,11 +43,13 @@ public class TupleTest {
         tuple1.addColors(tuple2.getColors());
         System.out.println(tuple1);
 
-        BitSet binColor1 = new BitSet();
-        binColor1.set(Tuple.colorHash("red"));
-        tuple1.getColors().and(binColor1);
-        System.out.println(tuple1.getColors().length());
-        assert (tuple1.getColors().length() == 112786);
+        // set correct color bit-sets
+        BitSet correctColors = new BitSet();
+        correctColors.set(Tuple.colorHash(color1));
+        correctColors.set(Tuple.colorHash(color2));
+        correctColors.set(Tuple.colorHash(color3));
+
+        assert tuple1.getColors().equals(correctColors);
     }
 
     /* Test tuple equality based on suffix string */
@@ -111,9 +113,9 @@ public class TupleTest {
     @Test
     public void testEmitPrefix() {
         Tuple tuple = new Tuple("aggctatgctca", "red", "blue");
-        assert tuple.emitPrefix(4).equals("aggc");
+        assert tuple.emitSfxPrefix(4).equals("aggc");
         assert tuple.getSuffix().equals("tatgctca");
-        assert tuple.emitPrefix(4).equals("tatg");
+        assert tuple.emitSfxPrefix(4).equals("tatg");
         assert tuple.getSuffix().equals("ctca");
     }
 

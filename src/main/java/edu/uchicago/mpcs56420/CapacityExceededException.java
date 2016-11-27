@@ -7,6 +7,8 @@ public class CapacityExceededException extends Exception {
 
 	private Tuple mLastTuple;
 
+	public CapacityExceededException() {}
+
 	public CapacityExceededException(Tuple lastTuple) {
 		mLastTuple = lastTuple;
 	}

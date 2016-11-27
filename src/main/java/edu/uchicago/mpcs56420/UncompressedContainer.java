@@ -16,7 +16,13 @@ public class UncompressedContainer extends Container {
 
 	public ArrayList<Tuple> getTuples() { return new ArrayList<>(mTuples); }
 
-	@Override
+    public int numColors() {
+        int numColors = 0;
+        for (Tuple tuple : mTuples)
+            numColors += tuple.numColors();
+        return numColors;
+    }
+
 	public boolean contains(Tuple tuple) {
 		int index = Collections.binarySearch(mTuples, tuple);
 
@@ -26,16 +32,21 @@ public class UncompressedContainer extends Container {
 		return mTuples.get(index).hasColors(tuple.getColors());
 	}
 
-	@Override
 	public boolean containsSuffix(Tuple tuple) {
 		return Collections.binarySearch(mTuples, tuple) > -1;
 	}
 
-	/* Inserts new tuple if not at capacity, else throws exception */
+    public boolean containsSuffix(String suffix) {
+        Tuple testTuple = new Tuple(suffix);
+        return containsSuffix(testTuple);
+    }
+
+
+    /* Inserts new tuple if not at capacity, else throws exception */
 	@Override
 	public void insert(Tuple newTuple) throws CapacityExceededException {
 
-		if(mTuples.size() == getCapacity())
+		if(!containsSuffix(newTuple) && mTuples.size() == getCapacity())
 			throw new CapacityExceededException(newTuple);
 
 		int index = Collections.binarySearch(mTuples, newTuple);
@@ -46,6 +57,12 @@ public class UncompressedContainer extends Container {
 			mTuples.add(insertionPoint, newTuple);
 		}
 	}
+
+    @Override
+    public void insert(String newTupleString) throws CapacityExceededException {
+        Tuple newTuple = new Tuple(newTupleString);
+        insert(newTuple);
+    }
 
 	@Override
 	public String toString() {
