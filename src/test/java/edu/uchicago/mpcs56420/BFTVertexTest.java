@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Random;
 
 /**
@@ -353,6 +354,18 @@ public class BFTVertexTest {
         ArrayList<BFTVertex> gcgcChildren = gcgcCC.getChildVertices();
         for (int i = 0; i < gcgcChildren.size(); i++)
             assert gcgcChildren.get(i).getTerminalColors().cardinality() == 1;
+
+
+        // test colors containing
+        BitSet colors = new BitSet();
+        colors.set(Tuple.colorHash("blue"));
+        colors.set(Tuple.colorHash("violet"));
+        assert vertex.colorsContaining("gcgc").equals(colors);
+
+        colors.set(Tuple.colorHash("red"));
+        vertex.insert(new Tuple("gcgc", "red"));
+        assert vertex.colorsContaining("gcgc").equals(colors);
+        assert vertex.colorsContaining("gtgc").equals(new BitSet());
     }
 
 

@@ -40,6 +40,14 @@ public class UncompressedContainer extends Container {
 		return containsPartial(tuple.getSequence());
 	}
 
+	public Tuple getTuple(Tuple tuple) {
+		int index = Collections.binarySearch(mTuples, tuple);
+		if(index > -1)
+			return mTuples.get(index);
+
+		return null;
+	}
+
     public boolean containsSequence(String suffix) {
         Tuple testTuple = new Tuple(suffix);
         return containsSequence(testTuple);
@@ -67,9 +75,10 @@ public class UncompressedContainer extends Container {
         insert(newTuple);
     }
 
+	/* Checks to see if we can find the query within any part of any sequences in UC */
 	private boolean containsPartial(String query) {
 		for (int i = 0; i < mTuples.size(); i++) {
-			if(mTuples.get(i).getSequence().contains(query))
+			if(mTuples.get(i).getSequence().startsWith(query))
 				return true;
 		}
 		return false;

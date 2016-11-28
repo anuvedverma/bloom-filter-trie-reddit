@@ -26,10 +26,41 @@ public class BloomFilterTrieTest {
     }
 
     @Test
-    public void testInsertSequence() throws IOException {
+    public void testInsert() throws IOException {
         BloomFilterTrie bft = new BloomFilterTrie(12, 4);
 
         File folder = new File("db/test-xsmall");
+        populateBFT(folder, bft);
+
+        assert bft.getRoot().getUncompressedContainer().size() == 0;
+        assert bft.containsKmer("AGGCTATGCTCA");
+        assert bft.containsKmer("AGGCTATG");
+        assert bft.containsKmer("AGGCTATGCT");
+        assert bft.containsKmer("AGGCTATGCTCATAG") == false;
+    }
+
+    @Test
+    public void testContains() throws IOException {
+        BloomFilterTrie bft = new BloomFilterTrie(12, 4);
+
+        File folder = new File("db/test-xsmall");
+        populateBFT(folder, bft);
+
+        assert bft.getRoot().getUncompressedContainer().size() == 0;
+
+        ArrayList<String> bftGenomes = bft.getGenomes();
+//        for (int i = 0; i < bftGenomes.size(); i++)
+//            System.out.println(bftGenomes.get(i));
+
+        ArrayList<String> genomeColors = bft.genomesContainingKmer("AGGCTATGCTCA");
+        assert bftGenomes.get(0).equals(genomeColors.get(0));
+
+        genomeColors = bft.genomesContainingKmer("GCGCTATGCTGA");
+        assert bftGenomes.get(4).equals(genomeColors.get(0));
+    }
+
+
+    private void populateBFT(File folder, BloomFilterTrie bft) throws IOException {
         File[] listOfFiles = folder.listFiles();
 
         for (File file : listOfFiles) {
@@ -37,12 +68,6 @@ public class BloomFilterTrieTest {
                 bft.insertSequence(file);
             }
         }
-
-        assert bft.getRoot().getUncompressedContainer().size() == 0;
-        assert bft.contains("AGGCTATGCTCA");
-        assert bft.contains("AGGCTATG");
-        assert bft.contains("AGGCTATGCT");
-        assert bft.contains("AGGCTATGCTCATAG") == false;
     }
 
 }

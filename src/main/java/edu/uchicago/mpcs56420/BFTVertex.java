@@ -47,10 +47,16 @@ public class BFTVertex {
         return contains(this, tuple);
     }
 
-    /* Public interface for checking if Vertex contains a suffix */
+    /* Public interface for checking if Vertex contains a sequence */
     public boolean containsSequence(Tuple checkTuple) {
         Tuple tuple = new Tuple(checkTuple);
         return containsSequence(this, tuple);
+    }
+
+    /* Public interface to get all colors corresponding to an input sequence */
+    public BitSet colorsContaining(String sequence) {
+        Tuple tuple = new Tuple(sequence);
+        return colorsContaining(this, tuple);
     }
 
 
@@ -135,7 +141,8 @@ public class BFTVertex {
                 sfpx = checkTuple.emitPrefix(sfpxLength);
                 BFTVertex childVertex = cont.getChildOf(sfpx);
                 return contains(childVertex, checkTuple);
-            } else return false;
+            }
+//            else return false;
         }
 
         return false;
@@ -167,11 +174,45 @@ public class BFTVertex {
                 sfpx = checkTuple.emitPrefix(sfpxLength);
                 BFTVertex childVertex = cont.getChildOf(sfpx);
                 return containsSequence(childVertex, checkTuple);
-			} else return false;
+			}
+//            else return false;
 		}
 
 		return false;
 	}
+
+    /* Algorithm to determine all colors corresponding with an input sequence */
+    private BitSet colorsContaining(BFTVertex vertex, Tuple checkTuple) {
+
+        // empty tuple means we've exhausted query
+        if(checkTuple.getSequence().isEmpty())
+            return vertex.getTerminalColors();
+
+        // get vertex's containers
+        UncompressedContainer uncompressedContainer = vertex.getUncompressedContainer();
+        ArrayList<CompressedContainer> compressedContainers = vertex.getCompressedContainers();
+
+        // if exists in uncompressed container, we're done
+        if(uncompressedContainer.containsSequence(checkTuple))
+            return uncompressedContainer.getTuple(checkTuple).getColors();
+
+
+        // get tuple prefix
+        int sfpxLength = Container.getPrefixLength();
+        String sfpx = checkTuple.getPrefix(sfpxLength);
+
+        // recursively search through vertex's (and its children's) compressed containers
+        for (CompressedContainer cont : compressedContainers) {
+            if(cont.mayContain(sfpx) && cont.containsPrefix(sfpx)) {
+                sfpx = checkTuple.emitPrefix(sfpxLength);
+                BFTVertex childVertex = cont.getChildOf(sfpx);
+                return colorsContaining(childVertex, checkTuple);
+            }
+//            else return new BitSet();
+        }
+
+        return new BitSet();
+    }
 
 
     /* Algorithm for bursting an UncompressedContainer upon addition of newTuple */

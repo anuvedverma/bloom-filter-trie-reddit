@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Created by Anuved on 11/27/2016.
@@ -79,7 +81,7 @@ public class BloomFilterTrie {
             // insert first k-mer
             Tuple firstKmer = new Tuple(kMer.toString(), color);
             mRoot.insert(firstKmer);
-            System.out.println(firstKmer);
+//            System.out.println(firstKmer);
 //            mRoot.insert(new Tuple(kMer.toString(), color));
 
 
@@ -96,7 +98,7 @@ public class BloomFilterTrie {
                     // insert k-mer
                     Tuple nextKmer = new Tuple(kMer.toString(), color);
                     mRoot.insert(nextKmer);
-                    System.out.println(nextKmer);
+//                    System.out.println(nextKmer);
 //                mRoot.insert(new Tuple(kMer.toString(), color));
 
                 }
@@ -109,21 +111,28 @@ public class BloomFilterTrie {
     }
 
     /* Public interface methods */
-    public boolean contains(String sequence) {
+    public boolean containsKmer(String sequence) {
+        Tuple query = new Tuple(sequence.toLowerCase());
         return mRoot.containsSequence(new Tuple(sequence.toLowerCase()));
     }
 
-    public boolean genomeContains(String color, String sequence) {
-        Tuple query = new Tuple(sequence, color);
+    public boolean containsKmer(String color, String sequence) {
+        Tuple query = new Tuple(sequence.toLowerCase(), color);
         return mRoot.contains(query);
     }
 
-    public String[] genomesContaining(String query) {
-        return new String[1];
-    }
+    public ArrayList<String> genomesContainingKmer(String kMerQuery) {
+        HashSet<String> genomesContaining = new HashSet<>();
+        BitSet colorsContainingKmer = mRoot.colorsContaining(kMerQuery.toLowerCase());
+//        System.out.println(colorsContainingKmer);
 
-    private BitSet genomesContaining(Tuple tuple) {
-        return null;
+        for (int i = 0; i < mColors.size(); i++) {
+            int bitIndex = Tuple.colorHash(mColors.get(i));
+            if(colorsContainingKmer.get(bitIndex))
+                genomesContaining.add(mColors.get(i));
+        }
+
+        return new ArrayList<>(genomesContaining);
     }
 
 
@@ -136,4 +145,6 @@ public class BloomFilterTrie {
     public int getKmerLength() {
         return mKmerLength;
     }
+
+    public ArrayList<String> getGenomes() { return mColors; }
 }
