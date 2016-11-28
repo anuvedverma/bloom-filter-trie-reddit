@@ -71,6 +71,7 @@ public class BFTVertex {
         int sfpxLength = Container.getPrefixLength();
         String sfpx = newTuple.getPrefix(sfpxLength);
 
+
         // get vertex's containers
         UncompressedContainer uncompressedContainer = vertex.getUncompressedContainer();
         ArrayList<CompressedContainer> compressedContainers = vertex.getCompressedContainers();
@@ -116,7 +117,6 @@ public class BFTVertex {
         // 4) if none of the above: add to uncompressed container (burst if necessary)
         try { uncompressedContainer.insert(newTuple); }
         catch (CapacityExceededException e) { burstUncompressedContainer(newTuple); }
-
     }
 
 

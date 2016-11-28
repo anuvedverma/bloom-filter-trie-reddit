@@ -59,6 +59,32 @@ public class BloomFilterTrieTest {
         assert bftGenomes.get(4).equals(genomeColors.get(0));
     }
 
+    @Test
+    public void testSingleFileKmers() throws IOException {
+
+//        BloomFilterTrie bft = new BloomFilterTrie(6, 3);
+        BloomFilterTrie bft = new BloomFilterTrie(63, 9);
+
+//        File file = new File("db/test-xsmall/input1.fasta"); // AGGCTATGCTCA
+        File file = new File("db/test-small/input1.fasta"); // AGGCTATGCTCA
+        bft.insertSequence(file);
+
+//        System.out.println(bft.getRoot());
+//        for (int i = 0; i < bft.getRoot().getCompressedContainers().size(); i++)
+//            System.out.println(bft.getRoot().getCompressedContainers().get(i));
+//        System.out.println(bft.getRoot().getUncompressedContainer());
+
+
+//        populateBFT(file, bft);
+    }
+
+    @Test
+    public void testBenchmark() throws IOException {
+        Benchmark benchmark = new Benchmark(63);
+        File file = new File("db/test-small/input1.fasta");
+        benchmark.insertSequence(file);
+    }
+
 
     private void populateBFT(File folder, BloomFilterTrie bft) throws IOException {
         File[] listOfFiles = folder.listFiles();

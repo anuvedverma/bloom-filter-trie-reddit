@@ -80,8 +80,10 @@ public class BloomFilterTrie {
 
             // insert first k-mer
             Tuple firstKmer = new Tuple(kMer.toString(), color);
+
+
             mRoot.insert(firstKmer);
-//            System.out.println(firstKmer);
+            System.out.println(firstKmer);
 //            mRoot.insert(new Tuple(kMer.toString(), color));
 
 
@@ -98,7 +100,7 @@ public class BloomFilterTrie {
                     // insert k-mer
                     Tuple nextKmer = new Tuple(kMer.toString(), color);
                     mRoot.insert(nextKmer);
-//                    System.out.println(nextKmer);
+                    System.out.println(nextKmer);
 //                mRoot.insert(new Tuple(kMer.toString(), color));
 
                 }
@@ -110,21 +112,22 @@ public class BloomFilterTrie {
         }
     }
 
-    /* Public interface methods */
+    /* Public interface for checking whether a given K-mer is stored or not */
     public boolean containsKmer(String sequence) {
         Tuple query = new Tuple(sequence.toLowerCase());
         return mRoot.containsSequence(new Tuple(sequence.toLowerCase()));
     }
 
+    /* Public interface for checking whether a given genome contains a given K-mer */
     public boolean containsKmer(String color, String sequence) {
         Tuple query = new Tuple(sequence.toLowerCase(), color);
         return mRoot.contains(query);
     }
 
+    /* Public interface for checking which genomes contain a given K-mer */
     public ArrayList<String> genomesContainingKmer(String kMerQuery) {
         HashSet<String> genomesContaining = new HashSet<>();
         BitSet colorsContainingKmer = mRoot.colorsContaining(kMerQuery.toLowerCase());
-//        System.out.println(colorsContainingKmer);
 
         for (int i = 0; i < mColors.size(); i++) {
             int bitIndex = Tuple.colorHash(mColors.get(i));
