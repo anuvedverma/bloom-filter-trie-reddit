@@ -43,7 +43,7 @@ public class CompressedContainer extends Container {
 
     /* Tests whether a prefix of input tuple exists in CompressedContainer */
     public boolean containsPrefix(Tuple tuple) {
-        String sfpx = tuple.getSfxPrefix(getSfpxLength());
+        String sfpx = tuple.getPrefix(getSfpxLength());
         return containsPrefix(sfpx);
     }
 
@@ -69,7 +69,7 @@ public class CompressedContainer extends Container {
     /* Inserts the suffix-prefix of an input tuple into the CompressedContainer */
     @Override
     public void insert(Tuple newTuple) throws CapacityExceededException {
-        String sfpx = newTuple.getSfxPrefix(getSfpxLength());
+        String sfpx = newTuple.getPrefix(getSfpxLength());
         insert(sfpx);
     }
 
@@ -97,6 +97,7 @@ public class CompressedContainer extends Container {
         if(!wasPrefIndexSet) {
             SufClustData sufClustData = new SufClustData(sfpxSuffix, true);
             mSufClustData.add(clusterPos, sufClustData);
+            addToBloomFilter(sfpx);
             return;
         }
 
@@ -109,6 +110,7 @@ public class CompressedContainer extends Container {
                 SufClustData sufClustData = new SufClustData(sfpxSuffix, true);
                 mSufClustData.add(clusterPos, sufClustData);
                 mSufClustData.get(clusterPos+1).setClusterStart(false);
+                addToBloomFilter(sfpx);
                 return;
             }
 
@@ -119,6 +121,7 @@ public class CompressedContainer extends Container {
             if(clusterPos >= mSufClustData.size()) {
                 SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
                 mSufClustData.add(clusterPos, sufClustData);
+                addToBloomFilter(sfpx);
                 return;
             }
 
@@ -129,6 +132,7 @@ public class CompressedContainer extends Container {
                 if(mSufClustData.get(clusterPos).isClusterStart()) {
                     SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
                     mSufClustData.add(clusterPos, sufClustData);
+                    addToBloomFilter(sfpx);
                     return;
                 }
                 clusterPos++;
@@ -138,6 +142,7 @@ public class CompressedContainer extends Container {
             // if sfpxSuffix is less than previous suffix...
             SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
             mSufClustData.add(clusterPos-1, sufClustData);
+            addToBloomFilter(sfpx);
             return;
         }
     }
@@ -189,6 +194,11 @@ public class CompressedContainer extends Container {
         }
 
         return -1;
+    }
+
+    /* Adds suffix-prefix (sfpx) to Bloom filter mQuer */
+    private void addToBloomFilter(String sfpx) {
+        mQuer.put(sfpx);
     }
 
 

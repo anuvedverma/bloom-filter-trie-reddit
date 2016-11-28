@@ -1,7 +1,8 @@
 package edu.uchicago.mpcs56420;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.BitSet;
-import java.util.Comparator;
 
 /**
  * Created by Anuved on 11/25/2016.
@@ -10,33 +11,38 @@ public class Tuple implements Comparable<Tuple> {
 
 	private static final int BIT_ARRAY_SIZE = 100;
 
-	private String mSuffix;
+	private String mSequence; // referred to as "suffix" in the paper... renamed to "sequence" for clarity
 	private BitSet mColors;
 
-	public Tuple(String suffix, BitSet colors) {
-		mSuffix = suffix;
+	public Tuple(String sequence, BitSet colors) {
+		mSequence = sequence;
 		mColors = colors;
 	}
 
-	public Tuple(String suffix) {
-		mSuffix = suffix;
+	public Tuple(String sequence) {
+		mSequence = sequence;
 		mColors = new BitSet();
 //        mColors = new BitSet(BIT_ARRAY_SIZE);
 	}
 
-	public Tuple(String suffix, String... colors) {
-		mSuffix = suffix;
+	public Tuple(String sequence, String... colors) {
+		mSequence = sequence;
 		mColors = new BitSet();
 		for(String color : colors)
 			addColor(color);
 	}
 
-	public String getSuffix() {
-		return mSuffix;
+	public Tuple(Tuple tuple) {
+		mSequence = tuple.getSequence();
+		mColors = tuple.getColors();
 	}
 
-	public void setSuffix(String suffix) {
-		mSuffix = suffix;
+	public String getSequence() {
+		return mSequence;
+	}
+
+	public void setSequence(String sequence) {
+		mSequence = sequence;
 	}
 
 	public BitSet getColors() { return (BitSet) mColors.clone(); }
@@ -71,22 +77,21 @@ public class Tuple implements Comparable<Tuple> {
 
 
 	/* Gets prefix of suffix string for compression and indexing algorithm */
-	public String getSfxPrefix(int sfpxLength) {
-		String sfpx = mSuffix.substring(0, sfpxLength);
+	public String getPrefix(int sfpxLength) {
+		String sfpx = mSequence.substring(0, sfpxLength);
 		return sfpx;
 	}
 
-
 	/* Truncates suffix string for compression and indexing algorithm */
-	public String emitSfxPrefix(int sfpxLength) {
-		String sfpx = mSuffix.substring(0, sfpxLength);
-		mSuffix = mSuffix.substring(sfpxLength);
+	public String emitPrefix(int sfpxLength) {
+		String sfpx = mSequence.substring(0, sfpxLength);
+		mSequence = mSequence.substring(sfpxLength);
 		return sfpx;
 	}
 
     /* Gets suffix of suffix string for compression and indexing algorithm */
-    public String getSfxSuffix(int sfpxLength) {
-        String sfsf = mSuffix.substring(sfpxLength);
+    public String getSuffix(int sfpxLength) {
+        String sfsf = mSequence.substring(sfpxLength);
         return sfsf;
     }
 
@@ -97,14 +102,14 @@ public class Tuple implements Comparable<Tuple> {
 	* */
 	@Override
 	public boolean equals(Object object) {
-		if(mSuffix.equals(((Tuple) object).getSuffix()))
+		if(mSequence.equals(((Tuple) object).getSequence()))
 			return true;
 		else return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return mSuffix.hashCode();
+		return mSequence.hashCode();
 	}
 
 	public static int colorHash(String color) {
@@ -114,11 +119,11 @@ public class Tuple implements Comparable<Tuple> {
 
 	@Override
 	public String toString() {
-		return mSuffix + ": " + mColors.toString();
+		return mSequence + ": " + mColors.toString();
 	}
 
 	@Override
 	public int compareTo(Tuple tuple) {
-		return (this.mSuffix).compareTo(tuple.getSuffix());
+		return (this.mSequence).compareTo(tuple.getSequence());
 	}
 }

@@ -113,10 +113,10 @@ public class TupleTest {
     @Test
     public void testEmitPrefix() {
         Tuple tuple = new Tuple("aggctatgctca", "red", "blue");
-        assert tuple.emitSfxPrefix(4).equals("aggc");
-        assert tuple.getSuffix().equals("tatgctca");
-        assert tuple.emitSfxPrefix(4).equals("tatg");
-        assert tuple.getSuffix().equals("ctca");
+        assert tuple.emitPrefix(4).equals("aggc");
+        assert tuple.getSequence().equals("tatgctca");
+        assert tuple.emitPrefix(4).equals("tatg");
+        assert tuple.getSequence().equals("ctca");
     }
 
 }

@@ -15,6 +15,7 @@ public class UncompressedContainer extends Container {
 	public int size() { return mTuples.size(); }
 
 	public ArrayList<Tuple> getTuples() { return new ArrayList<>(mTuples); }
+//	public ArrayList<Tuple> getTuples() { return mTuples; }
 
     public int numColors() {
         int numColors = 0;
