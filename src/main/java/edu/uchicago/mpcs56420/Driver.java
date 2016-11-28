@@ -1,17 +1,8 @@
 package edu.uchicago.mpcs56420;
 
-import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnels;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.TreeMap;
-
-import static edu.uchicago.mpcs56420.Container.getSfpxPrefixLength;
+import static edu.uchicago.mpcs56420.Container.getPrfxPrefixLength;
 
 /**
  * Created by Anuved on 11/25/2016.
@@ -20,9 +11,9 @@ public class Driver {
 	public static void main(String[] args) {
 
 		String sfpx = "agc";
-		String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
+		String sfpxPrefix = sfpx.substring(0, getPrfxPrefixLength());
 		System.out.println(sfpxPrefix);
-		String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+		String sfpxSuffix = sfpx.substring(getPrfxPrefixLength());
 		System.out.println(sfpxSuffix);
 
 		char c = '?';

@@ -48,9 +48,9 @@ public class BFTVertex {
     }
 
     /* Public interface for checking if Vertex contains a suffix */
-    public boolean containsSuffix(Tuple checkTuple) {
+    public boolean containsSequence(Tuple checkTuple) {
         Tuple tuple = new Tuple(checkTuple);
-        return containsSuffix(this, tuple);
+        return containsSequence(this, tuple);
     }
 
 
@@ -58,11 +58,11 @@ public class BFTVertex {
     private void insert(BFTVertex vertex, Tuple newTuple) {
 
         if(newTuple.getSequence().isEmpty()) {
-            mTerminalColors.or(newTuple.getColors());
+            vertex.getTerminalColors().or(newTuple.getColors());
             return;
         }
         // get tuple prefix
-        int sfpxLength = Container.getSfpxLength();
+        int sfpxLength = Container.getPrefixLength();
         String sfpx = newTuple.getPrefix(sfpxLength);
 
         // get vertex's containers
@@ -126,7 +126,7 @@ public class BFTVertex {
             return true;
 
         // get tuple prefix
-        int sfpxLength = Container.getSfpxLength();
+        int sfpxLength = Container.getPrefixLength();
         String sfpx = checkTuple.getPrefix(sfpxLength);
 
         // recursively search through vertex's (and its children's) compressed containers
@@ -142,7 +142,11 @@ public class BFTVertex {
     }
 
     /* Algorithm to determine presence of suffix in a vertex and its children */
-	private boolean containsSuffix(BFTVertex vertex, Tuple checkTuple) {
+	private boolean containsSequence(BFTVertex vertex, Tuple checkTuple) {
+
+        // empty tuple implies membership
+        if(checkTuple.getSequence().isEmpty())
+            return true;
 
         // get vertex's containers
 		UncompressedContainer uncompressedContainer = vertex.getUncompressedContainer();
@@ -154,7 +158,7 @@ public class BFTVertex {
 
 
         // get tuple prefix
-        int sfpxLength = Container.getSfpxLength();
+        int sfpxLength = Container.getPrefixLength();
         String sfpx = checkTuple.getPrefix(sfpxLength);
 
         // recursively search through vertex's (and its children's) compressed containers
@@ -162,7 +166,7 @@ public class BFTVertex {
 			if(cont.mayContain(sfpx) && cont.containsPrefix(sfpx)) {
                 sfpx = checkTuple.emitPrefix(sfpxLength);
                 BFTVertex childVertex = cont.getChildOf(sfpx);
-                return containsSuffix(childVertex, checkTuple);
+                return containsSequence(childVertex, checkTuple);
 			} else return false;
 		}
 
@@ -180,12 +184,15 @@ public class BFTVertex {
         CompressedContainer newCompressedContainer = new CompressedContainer();
         for (int i = 0; i < tuples.size(); i++) {
             Tuple uncompressedTuple = tuples.get(i);
+            String sfpx = uncompressedTuple.emitPrefix(Container.getPrefixLength());
             try {
-                String sfpx = uncompressedTuple.emitPrefix(Container.getSfpxLength());
                 newCompressedContainer.insert(new Tuple(sfpx));
                 newCompressedContainer.getChildOf(sfpx).insert(uncompressedTuple);
             } catch (CapacityExceededException e) {
-                try { newUncompressedContainer.insert(uncompressedTuple); }
+                try {
+                    uncompressedTuple.setSequence(sfpx + uncompressedTuple.getSequence()); // add prefix back to tuple
+                    newUncompressedContainer.insert(uncompressedTuple);
+                }
                 catch (CapacityExceededException e1) {
                     // WE SHOULD NEVER REACH THIS PART OF CODE:
                     // there shouldn't be enough tuples leftover after inserting into CompressedContainer to overflow the UncompressedContainer

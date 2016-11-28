@@ -34,7 +34,10 @@ public class UncompressedContainer extends Container {
 	}
 
 	public boolean containsSequence(Tuple tuple) {
-		return Collections.binarySearch(mTuples, tuple) > -1;
+		if(Collections.binarySearch(mTuples, tuple) > -1)
+			return true;
+
+		return containsPartial(tuple.getSequence());
 	}
 
     public boolean containsSequence(String suffix) {
@@ -63,6 +66,14 @@ public class UncompressedContainer extends Container {
         Tuple newTuple = new Tuple(newTupleString);
         insert(newTuple);
     }
+
+	private boolean containsPartial(String query) {
+		for (int i = 0; i < mTuples.size(); i++) {
+			if(mTuples.get(i).getSequence().contains(query))
+				return true;
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {

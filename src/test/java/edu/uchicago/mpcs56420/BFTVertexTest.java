@@ -4,6 +4,7 @@ import com.google.common.hash.BloomFilter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -112,7 +113,7 @@ public class BFTVertexTest {
 
         // test insertion for color updating (1)
         Tuple newColorTuple = new Tuple("gcgccaggaatc", "blue");
-        assert mVertex.containsSuffix(newColorTuple);
+        assert mVertex.containsSequence(newColorTuple);
         assert mVertex.contains(newColorTuple) == false;
         mVertex.insert(newColorTuple); // (1) CC contains tuple: update color
         assert mVertex.contains(newColorTuple);
@@ -122,7 +123,7 @@ public class BFTVertexTest {
         Tuple existingPrefixTuple = new Tuple("gcgcaaggaatc", "red");
         boolean prefixFound = false;
         for (int i = 0; i < compressedContainers.size(); i++) {
-            String sfpx = existingPrefixTuple.getPrefix(Container.getSfpxLength());
+            String sfpx = existingPrefixTuple.getPrefix(Container.getPrefixLength());
             if (compressedContainers.get(i).containsPrefix(sfpx)) {
                 prefixFound = true;
                 break;
@@ -168,6 +169,7 @@ public class BFTVertexTest {
         compressedContainers = vertex.getCompressedContainers();
         uncompressedContainer = vertex.getUncompressedContainer();
 
+        assert uncompressedContainer.contains(new Tuple("tagcatag", "blue"));
         assert compressedContainers.size() == 1;
         assert uncompressedContainer.size() == 1;
         assert uncompressedContainer.numColors() == 1;
@@ -221,27 +223,27 @@ public class BFTVertexTest {
         Tuple tuple6 = new Tuple("gcgccaggaatc", "violet"); // tuple6 does not exist in mVertex yet
 
         // test contains before burst
-        assert mVertex.containsSuffix(tuple1);
-        assert mVertex.containsSuffix(tuple2);
-        assert mVertex.containsSuffix(tuple3);
-        assert mVertex.containsSuffix(tuple4);
-        assert mVertex.containsSuffix(tuple5);
-        assert mVertex.containsSuffix(tuple6) == false;
+        assert mVertex.containsSequence(tuple1);
+        assert mVertex.containsSequence(tuple2);
+        assert mVertex.containsSequence(tuple3);
+        assert mVertex.containsSequence(tuple4);
+        assert mVertex.containsSequence(tuple5);
+        assert mVertex.containsSequence(tuple6) == false;
 
 
         // new insertion/burst
         mVertex.insert(tuple6); // BURST
-        assert mVertex.containsSuffix(tuple1);
-        assert mVertex.containsSuffix(tuple2);
-        assert mVertex.containsSuffix(tuple3);
-        assert mVertex.containsSuffix(tuple4);
-        assert mVertex.containsSuffix(tuple5);
-        assert mVertex.containsSuffix(tuple6);
-        assert mVertex.containsSuffix(new Tuple("aggctatgctcaat", "green")) == false;
-        assert mVertex.containsSuffix(new Tuple("ttgagacattag", "brown")) == false;
-        assert mVertex.containsSuffix(new Tuple("gagagacattag")) == false;
-        assert mVertex.containsSuffix(new Tuple("gagagacattag")) == false;
-        assert mVertex.containsSuffix(new Tuple("aagagacata")) == false;
+        assert mVertex.containsSequence(tuple1);
+        assert mVertex.containsSequence(tuple2);
+        assert mVertex.containsSequence(tuple3);
+        assert mVertex.containsSequence(tuple4);
+        assert mVertex.containsSequence(tuple5);
+        assert mVertex.containsSequence(tuple6);
+        assert mVertex.containsSequence(new Tuple("aggctatgctcaat", "green")) == false;
+        assert mVertex.containsSequence(new Tuple("ttgagacattag", "brown")) == false;
+        assert mVertex.containsSequence(new Tuple("gagagacattag")) == false;
+        assert mVertex.containsSequence(new Tuple("gagagacattag")) == false;
+        assert mVertex.containsSequence(new Tuple("aagagacata")) == false;
     }
 
     @Test
@@ -283,6 +285,74 @@ public class BFTVertexTest {
         assert mVertex.contains(new Tuple("gcgccaggaatc", "red"));
         assert mVertex.contains(new Tuple("gcgccaggaatc", "violet")) == false;
         assert mVertex.contains(new Tuple("aagagacata")) == false;
+    }
+
+
+    @Test
+    public void testTerminalColors() {
+        BFTVertex vertex = new BFTVertex();
+
+        Tuple tuple1 = new Tuple("aggcatga", "red");
+        Tuple tuple2 = new Tuple("gcgc", "blue");
+        Tuple tuple3 = new Tuple("gccc", "blue");
+        Tuple tuple4 = new Tuple("ctca", "yellow");
+        Tuple tuple5 = new Tuple("aggataga", "yellow");
+
+        vertex.insert(tuple1);
+        vertex.insert(tuple2);
+        vertex.insert(tuple3);
+        vertex.insert(tuple4);
+        vertex.insert(tuple5);
+
+        // no terminal colors yet
+        assert vertex.getTerminalColors().cardinality() == 0;
+
+        Tuple tuple6 = new Tuple("tagcatag", "blue");
+        vertex.insert(tuple6); // BURST
+
+        // still no terminal colors... vertex doesn't get any
+        assert vertex.getTerminalColors().cardinality() == 0;
+        ArrayList<BFTVertex> vertexChildren = vertex.getCompressedContainers().get(0).getChildVertices();
+        for (int i = 0; i < vertexChildren.size(); i++) {
+            UncompressedContainer vcUC = vertexChildren.get(i).getUncompressedContainer();
+            if(vcUC.size() == 0)
+                assert vertexChildren.get(i).getTerminalColors().cardinality() == 1;
+            else assert vertexChildren.get(i).getTerminalColors().cardinality() == 0;
+        }
+
+
+        // setup for level 2 burst
+        Tuple tuple11 = new Tuple("gcgcagta", "red");
+        Tuple tuple22 = new Tuple("gcgctgaa", "blue");
+        Tuple tuple33 = new Tuple("gcgctcgc", "blue");
+        Tuple tuple44 = new Tuple("gcgcgcat", "yellow");
+        Tuple tuple55 = new Tuple("gcgc", "violet");
+        Tuple tuple66 = new Tuple("gcgcaata", "blue");
+
+        BFTVertex gcgcChild = vertex.getCompressedContainers().get(0).getChildOf("gcgc");
+        assert gcgcChild.getUncompressedContainer().size() == 0;
+
+        vertex.insert(tuple11);
+        vertex.insert(tuple22);
+        vertex.insert(tuple33);
+        vertex.insert(tuple44);
+        vertex.insert(tuple55);
+        assert gcgcChild.getUncompressedContainer().size() == 4;
+        assert gcgcChild.getTerminalColors().cardinality() == 2;
+
+        // GCGCCHILD VERTEX PRE-BURST
+        vertex.insert(tuple66);
+        assert gcgcChild.getUncompressedContainer().size() == 5;
+
+        // GCGCHILD BURST
+        Tuple tuple77 = new Tuple("taga");
+        gcgcChild.insert(tuple77);
+        assert gcgcChild.getUncompressedContainer().size() == 1; // everything terminal; nothing should go into uncompressed container
+
+        CompressedContainer gcgcCC = gcgcChild.getCompressedContainers().get(0);
+        ArrayList<BFTVertex> gcgcChildren = gcgcCC.getChildVertices();
+        for (int i = 0; i < gcgcChildren.size(); i++)
+            assert gcgcChildren.get(i).getTerminalColors().cardinality() == 1;
     }
 
 

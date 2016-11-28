@@ -13,7 +13,7 @@ import java.util.BitSet;
 public class CompressedContainer extends Container {
 
 	// pref bit-array size is 2 ^ (number of bits needed to represent suffix-prefix prefix)
-	private static final int PREF_SIZE = (int) Math.pow(2, (double) Container.numBitsNeededForAlphabet() * Container.getSfpxPrefixLength());
+	private static final int PREF_SIZE = (int) Math.pow(2, (double) Container.numBitsNeededForAlphabet() * Container.getPrfxPrefixLength());
 
     // data stored in compressed container
 	private BloomFilter<String> mQuer;
@@ -43,14 +43,14 @@ public class CompressedContainer extends Container {
 
     /* Tests whether a prefix of input tuple exists in CompressedContainer */
     public boolean containsPrefix(Tuple tuple) {
-        String sfpx = tuple.getPrefix(getSfpxLength());
+        String sfpx = tuple.getPrefix(getPrefixLength());
         return containsPrefix(sfpx);
     }
 
 	/* Algorithm to efficiently check if CompressedContainer stores a given suffix-prefix (sfpx) */
 	public boolean containsPrefix(String sfpx) {
-		String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
-		String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+		String sfpxPrefix = sfpx.substring(0, getPrfxPrefixLength());
+		String sfpxSuffix = sfpx.substring(getPrfxPrefixLength());
 		int prefIndex = getIndexInPref(sfpxPrefix);
 
 		if(mPref.get(prefIndex) == true) {
@@ -69,7 +69,7 @@ public class CompressedContainer extends Container {
     /* Inserts the suffix-prefix of an input tuple into the CompressedContainer */
     @Override
     public void insert(Tuple newTuple) throws CapacityExceededException {
-        String sfpx = newTuple.getPrefix(getSfpxLength());
+        String sfpx = newTuple.getPrefix(getPrefixLength());
         try {
             insert(sfpx);
         } catch (CapacityExceededException e) {
@@ -86,8 +86,8 @@ public class CompressedContainer extends Container {
         if((mSufClustData.size() == getCapacity()))
             throw new CapacityExceededException();
 
-        String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
-        String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+        String sfpxPrefix = sfpx.substring(0, getPrfxPrefixLength());
+        String sfpxSuffix = sfpx.substring(getPrfxPrefixLength());
         int prefIndex = getIndexInPref(sfpxPrefix);
 
         boolean wasPrefIndexSet = mPref.get(prefIndex);
@@ -175,15 +175,15 @@ public class CompressedContainer extends Container {
 	private int getIndexInPref(String sfpxPrefix) {
 		int prefIndex = 0;
 		for (int i = 0; i < sfpxPrefix.length(); i++) // binary index = sum((|A|^i) * c)
-			prefIndex += Math.pow(getAlphabetSize(), getSfpxPrefixLength() - (i + 1)) * getAlphabet().indexOf(sfpxPrefix.charAt(i));
+			prefIndex += Math.pow(getAlphabetSize(), getPrfxPrefixLength() - (i + 1)) * getAlphabet().indexOf(sfpxPrefix.charAt(i));
 
 		return prefIndex;
 	}
 
     /* Algorithm to return index of the child vertex that holds a given suffix's prefix */
     private int indexOf(String sfpx) {
-        String sfpxPrefix = sfpx.substring(0, getSfpxPrefixLength());
-        String sfpxSuffix = sfpx.substring(getSfpxPrefixLength());
+        String sfpxPrefix = sfpx.substring(0, getPrfxPrefixLength());
+        String sfpxSuffix = sfpx.substring(getPrfxPrefixLength());
         int prefIndex = getIndexInPref(sfpxPrefix);
 
         if(mPref.get(prefIndex) == true) {

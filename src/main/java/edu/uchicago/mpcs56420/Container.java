@@ -5,46 +5,51 @@ package edu.uchicago.mpcs56420;
  */
 public abstract class Container {
 
-	// container parameters
-	private static final int CAPACITY = 5;
-	private static final String ALPHABET = "acgt"; //{'a', 'c', 'g', 't'};
-	private static final int ALPHABET_SIZE = 4;
-	private static final int SFPX_LENGTH = 4;
-	private static final int SFPX_PREFIX_LENGTH = 2;
-	private static final int SFPX_SUFFIX_LENGTH = 2;
+	// all possible letters in input in order
+	private static final String ALPHABET = "acgt";
 
-	public static int getCapacity() {
-		return CAPACITY;
-	}
+	// default container parameters
+	private static int CAPACITY = 5;
+	private static int PREFIX_LENGTH = 4;
+	private static int PRFX_PREFIX_LENGTH = 2;
+	private static int PRFX_SUFFIX_LENGTH = 2;
 
-	public static String getAlphabet() {
-		return ALPHABET;
-	}
+	/* Getters */
+	public static int getCapacity() { return CAPACITY; }
+
+	public static String getAlphabet() { return ALPHABET; }
 
 	public static int getAlphabetSize() {
-		return ALPHABET_SIZE;
+		return ALPHABET.length();
 	}
 
-	public static int getSfpxLength() {
-		return SFPX_LENGTH;
+	public static int getPrefixLength() { return PREFIX_LENGTH; }
+
+	public static int getPrfxPrefixLength() {
+		return PRFX_PREFIX_LENGTH;
 	}
 
-	public static int getSfpxPrefixLength() {
-		return SFPX_PREFIX_LENGTH;
+	public static int getPrfxSuffixLength() {
+		return PRFX_SUFFIX_LENGTH;
 	}
 
-	public static int getSfpxSuffixLength() {
-		return SFPX_SUFFIX_LENGTH;
+	/* Setters */
+	public static void setCapacity(int capacity) { CAPACITY = capacity; }
+
+	public static void setPrefixLength(int prefixLength) {
+		PREFIX_LENGTH = prefixLength;
+		PRFX_PREFIX_LENGTH = PREFIX_LENGTH / 2;
+		PRFX_SUFFIX_LENGTH = PREFIX_LENGTH - PRFX_PREFIX_LENGTH;
 	}
+
 
 	/* Returns number of bits needed to represent Alphabet */
 	public static int numBitsNeededForAlphabet() {
 		int numBitsInInt = 32;
-		return numBitsInInt - Integer.numberOfLeadingZeros(ALPHABET_SIZE);
+		return numBitsInInt - Integer.numberOfLeadingZeros(getAlphabetSize());
 	}
 
+	// let child classes implement this depending on if they're uncompressed or compressed
 	public abstract void insert(Tuple newTuple) throws CapacityExceededException;
-
-//	public abstract void insert(String newTupleString) throws CapacityExceededException;
 
 }
