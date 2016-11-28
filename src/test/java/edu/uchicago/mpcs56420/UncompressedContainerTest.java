@@ -91,11 +91,11 @@ public class UncompressedContainerTest {
         uc.insert(tuple4);
         uc.insert(tuple5);
 
-        assert uc.containsSuffix(new Tuple("tcgt", "red", "potato"));
-        assert uc.containsSuffix(new Tuple("tcgt"));
-        assert uc.containsSuffix(new Tuple("cggt", "blue", "red"));
-        assert uc.containsSuffix(new Tuple("acgt", "yellow"));
-        assert uc.containsSuffix(new Tuple("cgga")) == false;
+        assert uc.containsSequence(new Tuple("tcgt", "red", "potato"));
+        assert uc.containsSequence(new Tuple("tcgt"));
+        assert uc.containsSequence(new Tuple("cggt", "blue", "red"));
+        assert uc.containsSequence(new Tuple("acgt", "yellow"));
+        assert uc.containsSequence(new Tuple("cgga")) == false;
 
         System.out.println(uc);
     }

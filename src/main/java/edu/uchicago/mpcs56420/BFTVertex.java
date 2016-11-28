@@ -1,6 +1,7 @@
 package edu.uchicago.mpcs56420;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 
 /**
  * Created by Anuved on 11/26/2016.
@@ -9,10 +10,12 @@ public class BFTVertex {
 
 	private ArrayList<CompressedContainer> mCompressedContainers;
 	private UncompressedContainer mUncompressedContainer;
+    private BitSet mTerminalColors;
 
 	public BFTVertex() {
 		mCompressedContainers = new ArrayList<>();
 		mUncompressedContainer = new UncompressedContainer();
+        mTerminalColors = new BitSet();
 	}
 
 	/* Getters */
@@ -23,7 +26,11 @@ public class BFTVertex {
 		return containers;
 	}
 
-	public UncompressedContainer getUncompressedContainer() { return mUncompressedContainer; }
+    public BitSet getTerminalColors() { return mTerminalColors; }
+
+    public int numTerminalColors() { return mTerminalColors.cardinality(); }
+
+    public UncompressedContainer getUncompressedContainer() { return mUncompressedContainer; }
 
 	public ArrayList<CompressedContainer> getCompressedContainers() { return mCompressedContainers; }
 
@@ -50,6 +57,10 @@ public class BFTVertex {
     /* Algorithm to insert a tuple into a BFTVertex */
     private void insert(BFTVertex vertex, Tuple newTuple) {
 
+        if(newTuple.getSequence().isEmpty()) {
+            mTerminalColors.or(newTuple.getColors());
+            return;
+        }
         // get tuple prefix
         int sfpxLength = Container.getSfpxLength();
         String sfpx = newTuple.getPrefix(sfpxLength);
@@ -59,7 +70,7 @@ public class BFTVertex {
         ArrayList<CompressedContainer> compressedContainers = vertex.getCompressedContainers();
 
         // if vertex contains tuple in uncompressed container: update color
-        if(uncompressedContainer.containsSuffix(newTuple)) {
+        if(uncompressedContainer.containsSequence(newTuple)) {
             try {
                 uncompressedContainer.insert(newTuple); // will simply update color
                 return;
@@ -88,7 +99,7 @@ public class BFTVertex {
             if(cont.mayContain(sfpx)) {
                 sfpx = newTuple.emitPrefix(sfpxLength);
                 try {
-                    cont.insert(sfpx);
+                    cont.insert(new Tuple(sfpx));
                     BFTVertex childVertex = cont.getChildOf(sfpx);
                     insert(childVertex, newTuple);
                     return;
@@ -98,7 +109,7 @@ public class BFTVertex {
 
         // 4) if none of the above: add to uncompressed container (burst if necessary)
         try { uncompressedContainer.insert(newTuple); }
-        catch (CapacityExceededException e) { burstUncompressedContainer(e.getLastTuple()); }
+        catch (CapacityExceededException e) { burstUncompressedContainer(newTuple); }
 
     }
 
@@ -138,7 +149,7 @@ public class BFTVertex {
 		ArrayList<CompressedContainer> compressedContainers = vertex.getCompressedContainers();
 
 		// if exists in uncompressed container, we're done
-		if(uncompressedContainer.containsSuffix(checkTuple))
+		if(uncompressedContainer.containsSequence(checkTuple))
 			return true;
 
 
@@ -168,13 +179,13 @@ public class BFTVertex {
         UncompressedContainer newUncompressedContainer = new UncompressedContainer();
         CompressedContainer newCompressedContainer = new CompressedContainer();
         for (int i = 0; i < tuples.size(); i++) {
+            Tuple uncompressedTuple = tuples.get(i);
             try {
-                Tuple suffixTuple = tuples.get(i);
-                String sfpx = suffixTuple.emitPrefix(Container.getSfpxLength());
-                newCompressedContainer.insert(sfpx);
-                newCompressedContainer.getChildOf(sfpx).insert(suffixTuple);
+                String sfpx = uncompressedTuple.emitPrefix(Container.getSfpxLength());
+                newCompressedContainer.insert(new Tuple(sfpx));
+                newCompressedContainer.getChildOf(sfpx).insert(uncompressedTuple);
             } catch (CapacityExceededException e) {
-                try { newUncompressedContainer.insert(e.getLastTuple()); }
+                try { newUncompressedContainer.insert(uncompressedTuple); }
                 catch (CapacityExceededException e1) {
                     // WE SHOULD NEVER REACH THIS PART OF CODE:
                     // there shouldn't be enough tuples leftover after inserting into CompressedContainer to overflow the UncompressedContainer
@@ -193,6 +204,7 @@ public class BFTVertex {
         StringBuilder output = new StringBuilder();
 
         output.append("BFTVertex: " + super.toString() + "\n");
+        output.append("Terminal Colors: " + mTerminalColors + "\n");
         output.append("Num. Compressed Containers: " + mCompressedContainers.size() + "\n");
         output.append("Uncompressed Container Size: " + mUncompressedContainer.size() + "\n");
 

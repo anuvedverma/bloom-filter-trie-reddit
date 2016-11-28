@@ -13,8 +13,9 @@ TODO:
 - CompressedContainer: setup Bloom Filter [DONE]
 - Test BFTVertex's "insert" with "mayContains" (3) (aka test Bloom Filter) [DONE]
 - BFTVertex: create another "contains" function that checks if exact tuple (including color) already exists [DONE]
+- 
 - TEST [DONE]
-- COMMIT []
+- COMMIT [DONE]
 
 - BloomFilterTrie: create this class []
 - Write better tests w/ text input files []

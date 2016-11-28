@@ -33,13 +33,13 @@ public class UncompressedContainer extends Container {
 		return mTuples.get(index).hasColors(tuple.getColors());
 	}
 
-	public boolean containsSuffix(Tuple tuple) {
+	public boolean containsSequence(Tuple tuple) {
 		return Collections.binarySearch(mTuples, tuple) > -1;
 	}
 
-    public boolean containsSuffix(String suffix) {
+    public boolean containsSequence(String suffix) {
         Tuple testTuple = new Tuple(suffix);
-        return containsSuffix(testTuple);
+        return containsSequence(testTuple);
     }
 
 
@@ -47,7 +47,7 @@ public class UncompressedContainer extends Container {
 	@Override
 	public void insert(Tuple newTuple) throws CapacityExceededException {
 
-		if(!containsSuffix(newTuple) && mTuples.size() == getCapacity())
+		if(!containsSequence(newTuple) && mTuples.size() == getCapacity())
 			throw new CapacityExceededException(newTuple);
 
 		int index = Collections.binarySearch(mTuples, newTuple);
@@ -59,8 +59,7 @@ public class UncompressedContainer extends Container {
 		}
 	}
 
-    @Override
-    public void insert(String newTupleString) throws CapacityExceededException {
+    private void insert(String newTupleString) throws CapacityExceededException {
         Tuple newTuple = new Tuple(newTupleString);
         insert(newTuple);
     }

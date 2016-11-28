@@ -137,6 +137,77 @@ public class BFTVertexTest {
         printCompressedContainers(compressedContainers);
     }
 
+    @Test
+    public void testInsertBurstEndOfKmer() {
+
+        BFTVertex vertex = new BFTVertex();
+
+        Tuple tuple1 = new Tuple("aggcatga", "red");
+        Tuple tuple2 = new Tuple("gcgc", "blue");
+        Tuple tuple3 = new Tuple("gccc", "blue");
+        Tuple tuple4 = new Tuple("ctca", "yellow");
+        Tuple tuple5 = new Tuple("aggataga", "yellow");
+
+        vertex.insert(tuple1);
+        vertex.insert(tuple2);
+        vertex.insert(tuple3);
+        vertex.insert(tuple4);
+        vertex.insert(tuple5);
+
+        // test init conditions
+        ArrayList<CompressedContainer> compressedContainers = vertex.getCompressedContainers();
+        UncompressedContainer uncompressedContainer = vertex.getUncompressedContainer();
+
+        assert compressedContainers.size() == 0;
+        assert uncompressedContainer.size() == 5;
+        assert uncompressedContainer.numColors() == 5;
+
+        Tuple tuple6 = new Tuple("tagcatag", "blue");
+        vertex.insert(tuple6); // BURST
+
+        compressedContainers = vertex.getCompressedContainers();
+        uncompressedContainer = vertex.getUncompressedContainer();
+
+        assert compressedContainers.size() == 1;
+        assert uncompressedContainer.size() == 1;
+        assert uncompressedContainer.numColors() == 1;
+
+        // setup for level 2 burst
+        Tuple tuple11 = new Tuple("gcgcagta", "red");
+        Tuple tuple22 = new Tuple("gcgctgaa", "blue");
+        Tuple tuple33 = new Tuple("gcgctggc", "blue");
+        Tuple tuple44 = new Tuple("gcgcgcat", "yellow");
+        Tuple tuple55 = new Tuple("gcgc", "violet");
+        Tuple tuple66 = new Tuple("gcgcaata", "blue");
+
+        BFTVertex gcgcChild = compressedContainers.get(0).getChildOf("gcgc");
+        vertex.insert(tuple11);
+        vertex.insert(tuple22);
+        vertex.insert(tuple33);
+        vertex.insert(tuple44);
+        vertex.insert(tuple55);
+        assert gcgcChild.getUncompressedContainer().size() == 4;
+
+
+        // GCGCCHILD VERTEX PRE-BURST
+        assert vertex.getCompressedContainers().size() == 1;
+        vertex.insert(tuple66);
+        assert vertex.getCompressedContainers().size() == 1;
+        assert gcgcChild.getUncompressedContainer().size() == 5;
+        assert vertex.getUncompressedContainer().size() == 1;
+
+        // GCGCHILD BURST
+        Tuple tuple77 = new Tuple("taga");
+        Tuple tuple88 = new Tuple("gcgc", "gray");
+        gcgcChild.insert(tuple77);
+        vertex.insert(tuple88);
+        assert gcgcChild.getUncompressedContainer().size() == 1;
+
+        System.out.println(vertex);
+        System.out.println(gcgcChild);
+        printCompressedContainers(gcgcChild.getCompressedContainers());
+    }
+
 
     @Test
     public void testContainsSuffix() {

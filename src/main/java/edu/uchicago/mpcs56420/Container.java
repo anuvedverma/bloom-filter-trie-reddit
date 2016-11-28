@@ -45,6 +45,6 @@ public abstract class Container {
 
 	public abstract void insert(Tuple newTuple) throws CapacityExceededException;
 
-	public abstract void insert(String newTupleString) throws CapacityExceededException;
+//	public abstract void insert(String newTupleString) throws CapacityExceededException;
 
 }

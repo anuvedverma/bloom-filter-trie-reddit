@@ -78,6 +78,9 @@ public class Tuple implements Comparable<Tuple> {
 
 	/* Gets prefix of suffix string for compression and indexing algorithm */
 	public String getPrefix(int sfpxLength) {
+		if(mSequence.isEmpty())
+			return "";
+
 		String sfpx = mSequence.substring(0, sfpxLength);
 		return sfpx;
 	}

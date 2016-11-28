@@ -70,12 +70,15 @@ public class CompressedContainer extends Container {
     @Override
     public void insert(Tuple newTuple) throws CapacityExceededException {
         String sfpx = newTuple.getPrefix(getSfpxLength());
-        insert(sfpx);
+        try {
+            insert(sfpx);
+        } catch (CapacityExceededException e) {
+            throw new CapacityExceededException(newTuple);
+        }
     }
 
     /* Algorithm for inserting a suffix-prefix (sfpx) into the CompressedContainer */
-    @Override
-    public void insert(String sfpx) throws CapacityExceededException {
+    private void insert(String sfpx) throws CapacityExceededException {
 
         if(containsPrefix(sfpx))
             return;

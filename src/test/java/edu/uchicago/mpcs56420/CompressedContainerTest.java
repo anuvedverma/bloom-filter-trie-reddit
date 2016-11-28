@@ -18,13 +18,13 @@ public class CompressedContainerTest {
     @Before
     public void initCompressedContainer() throws CapacityExceededException {
         mCompressedContainer = new CompressedContainer();
-        mCompressedContainer.insert("aggc");
+        mCompressedContainer.insert(new Tuple("aggc"));
         mCompressedContainer.insert(new Tuple("ctca"));
-        mCompressedContainer.insert("ctca");
+        mCompressedContainer.insert(new Tuple("ctca"));
         mCompressedContainer.insert(new Tuple("gccc", "red"));
-        mCompressedContainer.insert("gccc");
-        mCompressedContainer.insert("gcgc");
-        mCompressedContainer.insert("gtat");
+        mCompressedContainer.insert(new Tuple("gccc"));
+        mCompressedContainer.insert(new Tuple("gcgc"));
+        mCompressedContainer.insert(new Tuple("gtat"));
     }
 
     @Test
