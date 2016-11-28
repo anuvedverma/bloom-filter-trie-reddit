@@ -73,7 +73,7 @@ public class CompressedContainer extends Container {
         try {
             insert(sfpx);
         } catch (CapacityExceededException e) {
-            throw new CapacityExceededException(newTuple);
+            throw new CapacityExceededException(e.getLastTuple());
         }
     }
 
@@ -131,15 +131,16 @@ public class CompressedContainer extends Container {
             // while sfpxSuffix is greater than previous suffix...
             boolean isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos-1).getSfpxSuffix()) > 0;
             while (isNewSfxGreaterThanPrevPos) {
-                // if next cluster is reached (ie. if sfpxSuffix is greatest in its cluster)...
-                if(mSufClustData.get(clusterPos).isClusterStart()) {
+                // if clusterPos is at end of bit-array OR if next cluster is reached (ie. if sfpxSuffix is greatest in its cluster)...
+                if(clusterPos >= mSufClustData.size() || mSufClustData.get(clusterPos).isClusterStart()) {
                     SufClustData sufClustData = new SufClustData(sfpxSuffix, false);
                     mSufClustData.add(clusterPos, sufClustData);
                     addToBloomFilter(sfpx);
                     return;
                 }
+
                 clusterPos++;
-                isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos-1).getSfpxSuffix()) > 0;
+                isNewSfxGreaterThanPrevPos = sfpxSuffix.compareTo(mSufClustData.get(clusterPos - 1).getSfpxSuffix()) > 0;
             }
 
             // if sfpxSuffix is less than previous suffix...

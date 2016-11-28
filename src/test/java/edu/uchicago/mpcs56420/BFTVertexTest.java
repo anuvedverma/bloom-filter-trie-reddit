@@ -97,6 +97,7 @@ public class BFTVertexTest {
 
         // test new insertion after burst with false positive prefix
         Tuple fpTuple = new Tuple(falsePositive + "gacaatgt", "red");
+        Tuple fpTuple_check = new Tuple(falsePositive + "gacaatgt", "red");
 
         // verify that it is falsePositive is actually a false positive
         assert bfInsertTest.getQuer().mightContain(falsePositive);
@@ -107,9 +108,9 @@ public class BFTVertexTest {
 
         // insert
         mVertex.insert(fpTuple);
-        assert mVertex.getUncompressedContainer().contains(fpTuple) == false; // verify uncompressed container size doesn't change
+        assert mVertex.getUncompressedContainer().contains(fpTuple_check) == false; // verify uncompressed container size doesn't change
         assert bfBeforeInsert.equals(bfInsertTest.getQuer()); // verify that BF doesn't change after insertion
-        assert mVertex.contains(fpTuple); // verify that insert was done successfully
+        assert mVertex.contains(fpTuple_check); // verify that insert was done successfully
 
 
         // test insertion for color updating (1)
@@ -122,6 +123,7 @@ public class BFTVertexTest {
 
         // test insertion if prefix is present (2)
         Tuple existingPrefixTuple = new Tuple("gcgcaaggaatc", "red");
+        Tuple existingPrefixTuple_check = new Tuple("gcgcaaggaatc", "red");
         boolean prefixFound = false;
         for (int i = 0; i < compressedContainers.size(); i++) {
             String sfpx = existingPrefixTuple.getPrefix(Container.getPrefixLength());
@@ -133,8 +135,8 @@ public class BFTVertexTest {
         assert prefixFound;
         assert mVertex.contains(existingPrefixTuple) == false;
         mVertex.insert(existingPrefixTuple);
-        assert mVertex.getUncompressedContainer().contains(existingPrefixTuple) == false; // verify that it doesn't go into uncompressed container
-        assert mVertex.contains(existingPrefixTuple);
+        assert mVertex.getUncompressedContainer().contains(existingPrefixTuple_check) == false; // verify that it doesn't go into uncompressed container
+        assert mVertex.contains(existingPrefixTuple_check);
 
         printCompressedContainers(compressedContainers);
     }
@@ -222,6 +224,7 @@ public class BFTVertexTest {
         Tuple tuple4 = new Tuple("gccctgcattgt", "green");
         Tuple tuple5 = new Tuple("gcgctatgctga", "teal");
         Tuple tuple6 = new Tuple("gcgccaggaatc", "violet"); // tuple6 does not exist in mVertex yet
+        Tuple tuple6_check = new Tuple("gcgccaggaatc", "violet"); // tuple6 (as well as others) get truncated after insertion
 
         // test contains before burst
         assert mVertex.containsSequence(tuple1);
@@ -234,12 +237,14 @@ public class BFTVertexTest {
 
         // new insertion/burst
         mVertex.insert(tuple6); // BURST
+
         assert mVertex.containsSequence(tuple1);
         assert mVertex.containsSequence(tuple2);
         assert mVertex.containsSequence(tuple3);
         assert mVertex.containsSequence(tuple4);
         assert mVertex.containsSequence(tuple5);
         assert mVertex.containsSequence(tuple6);
+//        assert mVertex.containsSequence(tuple6_check);
         assert mVertex.containsSequence(new Tuple("aggctatgctcaat", "green")) == false;
         assert mVertex.containsSequence(new Tuple("ttgagacattag", "brown")) == false;
         assert mVertex.containsSequence(new Tuple("gagagacattag")) == false;
@@ -257,6 +262,7 @@ public class BFTVertexTest {
         Tuple tuple4 = new Tuple("gccctgcattgt", "green"); // same suffix as 4, but w/ different color
         Tuple tuple5 = new Tuple("gcgctatgctga", "blue");
         Tuple tuple6 = new Tuple("gcgccaggaatc", "red"); // tuple6 does not exist in mVertex yet
+        Tuple tuple6_check = new Tuple("gcgccaggaatc", "red"); // tuple6 (as well as others) get truncated after insertion
 
 
         // test contains before burst
@@ -278,6 +284,7 @@ public class BFTVertexTest {
         assert mVertex.contains(tuple4) == false;
         assert mVertex.contains(tuple5);
         assert mVertex.contains(tuple6);
+//        assert mVertex.contains(tuple6_check);
         assert mVertex.contains(new Tuple("aggctatgctcaat")) == false;
         assert mVertex.contains(new Tuple("aggctgcattgt", "yellow"));
         assert mVertex.contains(new Tuple("aggctatgctca", "yellow")) == false;

@@ -21,8 +21,8 @@ public class Tuple implements Comparable<Tuple> {
 
 	public Tuple(String sequence) {
 		mSequence = sequence;
-		mColors = new BitSet();
-//        mColors = new BitSet(BIT_ARRAY_SIZE);
+//		mColors = new BitSet();
+        mColors = new BitSet(BIT_ARRAY_SIZE);
 	}
 
 	public Tuple(String sequence, String... colors) {
@@ -116,8 +116,8 @@ public class Tuple implements Comparable<Tuple> {
 	}
 
 	public static int colorHash(String color) {
-		// return Math.abs(color.hashCode() % BIT_ARRAY_SIZE);
-		return Math.abs(color.hashCode());
+		 return Math.abs(color.hashCode() % BIT_ARRAY_SIZE);
+//		return Math.abs(color.hashCode());
 	}
 
 	@Override

@@ -62,13 +62,33 @@ public class BloomFilterTrieTest {
     @Test
     public void testSingleFileKmers() throws IOException {
 
-//        BloomFilterTrie bft = new BloomFilterTrie(6, 3);
+//        BloomFilterTrie bft = new BloomFilterTrie(12, 4);
         BloomFilterTrie bft = new BloomFilterTrie(63, 9);
+//        BloomFilterTrie bft = new BloomFilterTrie(54, 9);
+//        BloomFilterTrie bft = new BloomFilterTrie(70, 9);
 
 //        File file = new File("db/test-xsmall/input1.fasta"); // AGGCTATGCTCA
         File file = new File("db/test-small/input1.fasta"); // AGGCTATGCTCA
         bft.insertSequence(file);
+    }
 
+    @Test
+    public void testOnDB() throws IOException {
+        BloomFilterTrie bft = new BloomFilterTrie(63, 9);
+//        File folder = new File("db/test-small");
+        File folder = new File("db/test-med");
+        populateBFT(folder, bft);
+
+        assert bft.containsKmer("agcttttcattctgactgcaacgggcaatatgtctctgtgtggattaaaaaaagagtgtctga");
+        assert bft.containsKmer("aactggttacctgccgtgagtaaattaaaattttattgacttaggtcactaaatactttaacc");
+        assert bft.containsKmer("tagcagcttctgaactggttacctgccgtgagtaaattaaaattttattgacttaggtcacta");
+        assert bft.containsKmer("ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
+//        assert bft.containsKmer("attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
+
+        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
+//        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
+        assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
+        assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
     }
 
     @Test

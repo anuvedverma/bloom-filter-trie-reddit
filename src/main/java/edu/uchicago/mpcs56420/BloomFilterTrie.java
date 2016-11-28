@@ -83,13 +83,14 @@ public class BloomFilterTrie {
 
 
             mRoot.insert(firstKmer);
-            System.out.println(firstKmer);
+            System.out.println(firstKmer + "  : kmer 1");
 //            mRoot.insert(new Tuple(kMer.toString(), color));
 
 
             // read subsequent k-mers
             String character;
             int c;
+            int kmerCount = 2;
             while((c = inputReader.read()) != -1) {
                 character = ((char) c + "").toLowerCase(); // cast to string and lowercase
 
@@ -100,7 +101,7 @@ public class BloomFilterTrie {
                     // insert k-mer
                     Tuple nextKmer = new Tuple(kMer.toString(), color);
                     mRoot.insert(nextKmer);
-                    System.out.println(nextKmer);
+                    System.out.println(nextKmer + "  : kmer " + kmerCount++);
 //                mRoot.insert(new Tuple(kMer.toString(), color));
 
                 }
@@ -115,7 +116,7 @@ public class BloomFilterTrie {
     /* Public interface for checking whether a given K-mer is stored or not */
     public boolean containsKmer(String sequence) {
         Tuple query = new Tuple(sequence.toLowerCase());
-        return mRoot.containsSequence(new Tuple(sequence.toLowerCase()));
+        return mRoot.containsSequence(query);
     }
 
     /* Public interface for checking whether a given genome contains a given K-mer */
