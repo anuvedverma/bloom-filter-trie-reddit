@@ -85,10 +85,23 @@ public class BloomFilterTrieTest {
         assert bft.containsKmer("ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
 //        assert bft.containsKmer("attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
 
+        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "agcttttcattctgactgcaacgggcaatatgtctctgtgtggattaaaaaaagagtgtctga");
+        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "aactggttacctgccgtgagtaaattaaaattttattgacttaggtcactaaatactttaacc");
+        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "tagcagcttctgaactggttacctgccgtgagtaaattaaaattttattgacttaggtcacta");
         assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
 //        assert bft.containsKmer(">CP010816.1 Escherichia coli strain BL21 (TaKaRa), complete genome", "attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
+
+        assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "agcttttcattctgactgcaacgggcaatatgtctctgtgtggattaaaaaaagagtgtctga");
+        assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "aactggttacctgccgtgagtaaattaaaattttattgacttaggtcactaaatactttaacc");
+        assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "tagcagcttctgaactggttacctgccgtgagtaaattaaaattttattgacttaggtcacta");
         assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
+//        assert bft.containsKmer(">U00096.3 Escherichia coli str. K-12 substr. MG1655, complete genome", "attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
+
+        assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "agcttttcattctgactgcaacgggcaatatgtctctgtgtggattaaaaaaagagtgtctga") == false;
+        assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "aactggttacctgccgtgagtaaattaaaattttattgacttaggtcactaaatactttaacc");
+        assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "tagcagcttctgaactggttacctgccgtgagtaaattaaaattttattgacttaggtcacta");
         assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "ttacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatta");
+//        assert bft.containsKmer(">NC_011750.1 Escherichia coli IAI39 chromosome, complete genome", "attacagagtacacaacatccatgaaacgcattagcaccaccattaccaccaccatcaccatt");
     }
 
     @Test
