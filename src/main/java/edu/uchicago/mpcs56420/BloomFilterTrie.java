@@ -83,7 +83,7 @@ public class BloomFilterTrie {
 
 
             mRoot.insert(firstKmer);
-            System.out.println(firstKmer + "  : kmer 1");
+            System.out.println("INSERTED KMER 1: " + firstKmer);
 //            mRoot.insert(new Tuple(kMer.toString(), color));
 
 
@@ -101,7 +101,7 @@ public class BloomFilterTrie {
                     // insert k-mer
                     Tuple nextKmer = new Tuple(kMer.toString(), color);
                     mRoot.insert(nextKmer);
-                    System.out.println(nextKmer + "  : kmer " + kmerCount++);
+                    System.out.println("INSERTED KMER " + kmerCount++ + ": " + nextKmer);
 //                mRoot.insert(new Tuple(kMer.toString(), color));
 
                 }

@@ -92,7 +92,7 @@ public class BFTVertex {
             }
         }
 
-        // if vertex already contains prefix in compressed container: insert truncated tuple suffix into child
+        // 2) if vertex already contains prefix in compressed container: insert truncated tuple suffix into child
         for (CompressedContainer cont : compressedContainers) {
             if(cont.mayContain(sfpx) && cont.containsPrefix(sfpx)) {
                 sfpx = newTuple.emitPrefix(sfpxLength);
@@ -107,10 +107,11 @@ public class BFTVertex {
         //      - else add prefix to CC; insert truncated tuple into child
         for (CompressedContainer cont : compressedContainers) {
             if(cont.mayContain(sfpx)) {
-                sfpx = newTuple.emitPrefix(sfpxLength);
+                sfpx = newTuple.getPrefix(sfpxLength);
                 try {
                     cont.insert(new Tuple(sfpx));
                     BFTVertex childVertex = cont.getChildOf(sfpx);
+                    newTuple.emitPrefix(sfpxLength);
                     insert(childVertex, newTuple);
                     return;
                 } catch (CapacityExceededException e) { continue; }
@@ -145,7 +146,6 @@ public class BFTVertex {
                 BFTVertex childVertex = cont.getChildOf(sfpx);
                 return contains(childVertex, checkTuple);
             }
-//            else return false;
         }
 
         return false;

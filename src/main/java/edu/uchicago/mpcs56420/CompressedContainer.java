@@ -49,6 +49,10 @@ public class CompressedContainer extends Container {
 
 	/* Algorithm to efficiently check if CompressedContainer stores a given suffix-prefix (sfpx) */
 	public boolean containsPrefix(String sfpx) {
+
+        if(sfpx.isEmpty())
+            return true;
+
 		String sfpxPrefix = sfpx.substring(0, getPrfxPrefixLength());
 		String sfpxSuffix = sfpx.substring(getPrfxPrefixLength());
 		int prefIndex = getIndexInPref(sfpxPrefix);

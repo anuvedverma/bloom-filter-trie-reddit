@@ -87,6 +87,9 @@ public class Tuple implements Comparable<Tuple> {
 
 	/* Truncates suffix string for compression and indexing algorithm */
 	public String emitPrefix(int sfpxLength) {
+		if(mSequence.isEmpty())
+			return "";
+
 		String sfpx = mSequence.substring(0, sfpxLength);
 		mSequence = mSequence.substring(sfpxLength);
 		return sfpx;
