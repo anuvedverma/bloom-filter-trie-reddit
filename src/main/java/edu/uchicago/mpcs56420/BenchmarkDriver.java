@@ -17,11 +17,11 @@ public class BenchmarkDriver {
 
         /* Hard-coded input and query directories for quick testing */
 //		File dbFolder = new File("db/test-med");
-		File dbFolder = new File("db/test-large");
+//		File dbFolder = new File("db/test-large");
 //		File dbFolder = new File("db/test-xlarge");
-//		File dbFolder = new File(args[0]);
-		File queryFolder = new File("query/test-1");
-//		File queryFolder = new File(args[1]);
+		File dbFolder = new File(args[0]);
+//		File queryFolder = new File("query/test-1");
+		File queryFolder = new File(args[1]);
 
 
         /* Initialize BFT and benchmark data structures */

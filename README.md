@@ -12,14 +12,12 @@ This repository is my implementation of the Bloom Filter Trie, as described by H
 
 ##Instructions
 
-### UPDATE: Command-line Maven not working for some reason... If instructions fail, please open and run from an IDE (IntelliJ or Eclipse) as a Maven project! 
-
 * This project uses Maven to build and run
 * To install the project, run `./install.sh`
-* To run a basic benchmarking of BFT, run `./run_benchmarks.sh`
-* To run the BFT algorithm on all the queries stored in the `query` directory, run `./run_benchmarks.sh`
+* To run a basic benchmarking of BFT against HashMap and ArrayList, run `./run_benchmarks.sh`
+* To run the BFT algorithm on all the queries stored in the `query` directory, run `./run_bft.sh`
 * Datasets of varying sizes are stored in the `db` directory, and sample queries are stored in the `query` directory
-    * To run the programs on a different dataset, update the BASH script by changing `./db/test-mid` to your liking
+    * To run the programs on a different dataset, update the BASH script by changing `./db/test-mid` and `./query/test1` to your liking
 
 
 ###Input
