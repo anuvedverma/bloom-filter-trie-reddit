@@ -1,5 +1,6 @@
 package edu.uchicago.mpcs56420;
 
+import edu.uchicago.mpcs56420.BloomFilterTrie.Tuple;
 import org.junit.Test;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 /**
  * Created by Anuved on 11/26/2016.

@@ -1,25 +1,27 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.Benchmark;
+
+import edu.uchicago.mpcs56420.BloomFilterTrie.Container;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Tuple;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.BitSet;
 
 /**
- * Created by Anuved on 11/28/2016.
+ * Created by Anuved on 11/29/2016.
  */
-public class Benchmark {
+public class BenchmarkArray {
 
-    private ArrayList<String> mColors;
-    private HashMap<String, Integer> mGenomeIndex;
+    private ArrayList<String> mGenomeKmer;
     private int mKmerLength;
 
-    public Benchmark(int kMerLength) {
-        mColors = new ArrayList<>();
-        mGenomeIndex = new HashMap<>();
-        mKmerLength = kMerLength;
+    public BenchmarkArray(int kmerLength) {
+        mGenomeKmer = new ArrayList<>();
+        mKmerLength = kmerLength;
     }
 
+    /* Public interface for inserting FASTA sequence into Benchmark */
     public void insertSequence(File inputFile) throws IOException {
         if(!inputFile.getName().endsWith(".fasta"))
             throw new IOException("Invalid input file format: must be a fasta file");
@@ -32,7 +34,6 @@ public class Benchmark {
 
         try {
             String color = inputReader.readLine(); // color is header
-            mColors.add(color);
 
             // read first k-mer
             for (int i = 0; i < mKmerLength; i++) {
@@ -51,8 +52,7 @@ public class Benchmark {
             }
 
             // insert first k-mer
-            mGenomeIndex.put(kMer.toString(), Tuple.colorHash(color));
-            System.out.println(kMer);
+            mGenomeKmer.add(kMer.toString());
 
 
             // read subsequent k-mers
@@ -66,8 +66,7 @@ public class Benchmark {
                     kMer.append(character);
 
                     // insert k-mer
-                    mGenomeIndex.put(kMer.toString(), Tuple.colorHash(color));
-                    System.out.println(kMer);
+                    mGenomeKmer.add(kMer.toString());
                 }
             }
 
@@ -77,5 +76,20 @@ public class Benchmark {
         }
     }
 
+    /* Public interface for checking whether a given K-mer is stored or not */
+    public boolean containsKmer(String sequence) {
+        sequence = sequence.toLowerCase();
+        for (int i = 0; i < mGenomeKmer.size(); i++) {
+            if(mGenomeKmer.get(i).equals(sequence))
+                return true;
+        }
 
+        return false;
+    }
+
+    public void printArray() {
+        for (int i = 0; i < mGenomeKmer.size(); i++) {
+            System.out.println(mGenomeKmer.get(i));
+        }
+    }
 }

@@ -1,10 +1,10 @@
 package edu.uchicago.mpcs56420;
 
 import com.google.common.hash.BloomFilter;
+import edu.uchicago.mpcs56420.BloomFilterTrie.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Random;
@@ -14,10 +14,17 @@ import java.util.Random;
  */
 public class BFTVertexTest {
 
+    private final int CONTAINER_CAPACITY = 5;
+    private static int PREFIX_LENGTH = 4;
+
     private BFTVertex mVertex;
 
     @Before
     public void initBFTVertex() {
+
+        Container.setCapacity(CONTAINER_CAPACITY);
+        Container.setPrefixLength(PREFIX_LENGTH);
+
         mVertex = new BFTVertex();
 
         Tuple tuple1 = new Tuple("aggctatgctca", "red");

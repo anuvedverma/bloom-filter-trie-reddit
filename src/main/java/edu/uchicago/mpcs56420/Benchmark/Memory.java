@@ -1,4 +1,4 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.Benchmark;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -16,10 +16,22 @@ public class Memory {
                         "Name: %s: %s\n",
                         mpBean.getName(), mpBean.getUsage().getUsed()
                 );
+                mpBean.getUsage().getUsed();
             }
         }
         System.out.println();
 
+    }
+
+    public static long getMemUsageEstimate() {
+        long memEstimate = 0;
+        for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+            if (mpBean.getType() == MemoryType.HEAP) {
+                memEstimate += mpBean.getUsage().getUsed();
+            }
+        }
+
+        return memEstimate;
     }
 
 }

@@ -19,6 +19,7 @@
   </build>
   <packaging>jar</packaging>
 
+
   <name>BloomFilterTrie</name>
   <url>http://maven.apache.org</url>
 
@@ -63,6 +64,12 @@
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>6.9.13.6</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.github.jbellis/jamm -->
+    <dependency>
+      <groupId>com.github.jbellis</groupId>
+      <artifactId>jamm</artifactId>
+      <version>0.3.1</version>
     </dependency>
   </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;

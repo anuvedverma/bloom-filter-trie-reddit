@@ -1,10 +1,13 @@
 package edu.uchicago.mpcs56420;
 
+import edu.uchicago.mpcs56420.BloomFilterTrie.CapacityExceededException;
+import edu.uchicago.mpcs56420.BloomFilterTrie.CompressedContainer;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Container;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.BitSet;
 

@@ -1,4 +1,4 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 import java.util.ArrayList;
 import java.util.Collections;

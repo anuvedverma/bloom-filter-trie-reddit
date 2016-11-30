@@ -1,10 +1,9 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.HashSet;
 
 /**
@@ -80,10 +79,9 @@ public class BloomFilterTrie {
 
             // insert first k-mer
             Tuple firstKmer = new Tuple(kMer.toString(), color);
-
-
             mRoot.insert(firstKmer);
-            System.out.println("INSERTED KMER 1: " + firstKmer);
+
+//            System.out.println("INSERTED KMER 1: " + firstKmer);
 //            mRoot.insert(new Tuple(kMer.toString(), color));
 
 
@@ -101,7 +99,7 @@ public class BloomFilterTrie {
                     // insert k-mer
                     Tuple nextKmer = new Tuple(kMer.toString(), color);
                     mRoot.insert(nextKmer);
-                    System.out.println("INSERTED KMER " + kmerCount++ + ": " + nextKmer);
+//                    System.out.println("INSERTED KMER " + kmerCount++ + ": " + nextKmer);
 //                mRoot.insert(new Tuple(kMer.toString(), color));
 
                 }

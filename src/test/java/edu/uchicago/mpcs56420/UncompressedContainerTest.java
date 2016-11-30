@@ -1,5 +1,9 @@
 package edu.uchicago.mpcs56420;
 
+import edu.uchicago.mpcs56420.BloomFilterTrie.CapacityExceededException;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Container;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Tuple;
+import edu.uchicago.mpcs56420.BloomFilterTrie.UncompressedContainer;
 import org.junit.Test;
 
 import java.util.ArrayList;

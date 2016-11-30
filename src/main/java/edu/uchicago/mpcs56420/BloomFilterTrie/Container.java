@@ -1,4 +1,4 @@
-package edu.uchicago.mpcs56420;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 /**
  * Created by Anuved on 11/25/2016.
@@ -9,10 +9,10 @@ public abstract class Container {
 	private static final String ALPHABET = "acgt";
 
 	// default container parameters
-	private static int CAPACITY = 5;
-	private static int PREFIX_LENGTH = 4;
-	private static int PRFX_PREFIX_LENGTH = 2;
-	private static int PRFX_SUFFIX_LENGTH = 2;
+	private static int CAPACITY = 248;
+	private static int PREFIX_LENGTH = 9;
+	private static int PRFX_PREFIX_LENGTH = 4;
+	private static int PRFX_SUFFIX_LENGTH = 5;
 
 	/* Getters */
 	public static int getCapacity() { return CAPACITY; }

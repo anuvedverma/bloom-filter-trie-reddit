@@ -1,5 +1,9 @@
 package edu.uchicago.mpcs56420;
 
+import edu.uchicago.mpcs56420.Benchmark.BenchmarkHashMap;
+import edu.uchicago.mpcs56420.BloomFilterTrie.BloomFilterTrie;
+import edu.uchicago.mpcs56420.BloomFilterTrie.Container;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -10,6 +14,16 @@ import java.util.ArrayList;
  * Created by Anuved on 11/28/2016.
  */
 public class BloomFilterTrieTest {
+
+    private final int CONTAINER_CAPACITY = 5;
+    private static int PREFIX_LENGTH = 4;
+
+    @Before
+    public void init() {
+        Container.setCapacity(CONTAINER_CAPACITY);
+        Container.setPrefixLength(PREFIX_LENGTH);
+    }
+
 
     @Test
     public void testCustomConstructor() {
@@ -49,8 +63,6 @@ public class BloomFilterTrieTest {
         assert bft.getRoot().getUncompressedContainer().size() == 0;
 
         ArrayList<String> bftGenomes = bft.getGenomes();
-//        for (int i = 0; i < bftGenomes.size(); i++)
-//            System.out.println(bftGenomes.get(i));
 
         ArrayList<String> genomeColors = bft.genomesContainingKmer("AGGCTATGCTCA");
         assert bftGenomes.get(0).equals(genomeColors.get(0));
@@ -81,12 +93,6 @@ public class BloomFilterTrieTest {
 //        File folder = new File("db/test-large");
         populateBFT(folder, bft);
 
-//        long startTime = System.nanoTime();
-//        assert bft.containsKmer("agcttttcattctgactgcaacgggcaatatgtctctgtgtggattaaaaaaagagtgtctga");
-//        long endTime = System.nanoTime();
-//        long duration = (endTime - startTime);
-//        System.out.println("BFT: " + duration);
-
 
 
         assert bft.containsKmer("aactggttacctgccgtgagtaaattaaaattttattgacttaggtcactaaatactttaacc");
@@ -116,9 +122,9 @@ public class BloomFilterTrieTest {
     @Test
     public void testBenchmark() throws IOException {
         int kMerLength = 63;
-        Benchmark benchmark = new Benchmark(kMerLength);
+        BenchmarkHashMap benchmarkHashMap = new BenchmarkHashMap(kMerLength);
         File file = new File("db/test-small/input1.fasta");
-        benchmark.insertSequence(file);
+        benchmarkHashMap.insertSequence(file);
     }
 
 

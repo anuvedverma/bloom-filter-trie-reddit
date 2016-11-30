@@ -1,6 +1,4 @@
-package edu.uchicago.mpcs56420;
-
-import org.apache.commons.lang.StringUtils;
+package edu.uchicago.mpcs56420.BloomFilterTrie;
 
 import java.util.BitSet;
 
