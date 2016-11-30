@@ -12,6 +12,8 @@ This repository is my implementation of the Bloom Filter Trie, as described by H
 
 ##Instructions
 
+### UPDATE: Command-line Maven not working for some reason... If instructions fail, please open and run from an IDE (IntelliJ or Eclipse) as a Maven project! 
+
 * This project uses Maven to build and run
 * To install the project, run `./install.sh`
 * To run a basic benchmarking of BFT, run `./run_benchmarks.sh`
